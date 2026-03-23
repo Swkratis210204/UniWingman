@@ -35,7 +35,8 @@ android {
 }
 
 dependencies {
-
+    implementation("org.postgresql:postgresql:42.3.8")
+    implementation("io.github.cdimascio:dotenv-java:3.0.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
