@@ -10,22 +10,22 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.uniwingman.databinding.FragmentNotificationsBinding;
+import com.example.uniwingman.databinding.FragmentAiSimulatorBinding;
 
 public class AISimulatorFragment extends Fragment {
 
-    private FragmentNotificationsBinding binding;
+    private FragmentAiSimulatorBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        AISimulatorViewModel AISimulatorViewModel =
+        AISimulatorViewModel aiSimulatorViewModel =
                 new ViewModelProvider(this).get(AISimulatorViewModel.class);
 
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false);
+        binding = FragmentAiSimulatorBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textNotifications;
-        AISimulatorViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final TextView textView = binding.textAiSimulator;
+        aiSimulatorViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

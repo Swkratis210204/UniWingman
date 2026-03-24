@@ -10,7 +10,7 @@ public class AISimulatorViewModel extends ViewModel {
 
     public AISimulatorViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("This is AI Simulator fragment");
     }
 
     public LiveData<String> getText() {
