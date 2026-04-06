@@ -18,3 +18,5 @@ Docs
 .idea/
 .test/
 /.env
+
+app/src/main/assets/env
