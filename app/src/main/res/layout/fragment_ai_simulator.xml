@@ -59,7 +59,8 @@
                 android:textSize="13sp"
                 android:textColor="#FFFFFF"
                 android:background="@drawable/bg_model_selected"
-                android:stateListAnimator="@null"/>
+                android:stateListAnimator="@null"
+                android:minHeight="48dp" />
 
             <Button
                 android:id="@+id/btnThinkingModel"
@@ -134,9 +135,10 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:maxLines="4"
-            android:inputType="textMultiLine"
             android:minHeight="48dp"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            android:inputType="textMultiLine|textCapSentences"
+            android:imeOptions="actionSend" />
 
         <ImageButton
             android:id="@+id/btnSend"
