@@ -1,6 +1,12 @@
 package com.example.uniwingman.data; // Βεβαιώσου ότι ταιριάζει με τον φάκελό σου
 
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -16,8 +22,8 @@ public class SupabaseAuth {
     public SupabaseAuth() {
         // Διαβάζει πλέον το αρχείο 'env' από τον φάκελο assets του Android
         Dotenv dotenv = Dotenv.configure()
-                .directory("/assets")
-                .filename("env") // Ψάχνει το 'env', όχι το '.env'
+                .directory("./assets")
+                .filename("env")
                 .load();
 
         this.url = dotenv.get("DB_URL");
