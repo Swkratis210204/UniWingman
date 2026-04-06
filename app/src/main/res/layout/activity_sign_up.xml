@@ -10,18 +10,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="Καλώς ήρθες!"
-        android:textSize="28sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
-        android:text="Συνδέσου για να συνεχίσεις"
-        android:textColor="#808080"
-        android:textSize="16sp" />
+        android:text="Δημιουργία Λογαριασμού"
+        android:textSize="26sp"
+        android:textStyle="bold" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
@@ -33,7 +25,7 @@
         app:boxCornerRadiusTopStart="8dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/emailEditText"
+            android:id="@+id/signUpEmailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email"
@@ -51,38 +43,18 @@
         app:passwordToggleEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/passwordEditText"
+            android:id="@+id/signUpPasswordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Κωδικός"
+            android:hint="Κωδικός (τουλ. 6 χαρακτήρες)"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/loginButton"
+        android:id="@+id/registerButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:layout_marginBottom="16dp"
         app:cornerRadius="8dp"
-        android:text="ΣΥΝΔΕΣΗ" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Δεν έχεις λογαριασμό; " />
-
-        <TextView
-            android:id="@+id/goToSignUpText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Κάνε Εγγραφή"
-            android:textColor="@color/design_default_color_primary"
-            android:textStyle="bold" />
-    </LinearLayout>
+        android:text="ΕΓΓΡΑΦΗ" />
 
 </LinearLayout>
