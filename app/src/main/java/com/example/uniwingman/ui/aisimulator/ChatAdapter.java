@@ -6,21 +6,32 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.uniwingman.R;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
+    private static final int VIEW_TYPE_USER = 1;
+    private static final int VIEW_TYPE_AI = 2;
     private List<ChatMessage> messages;
 
     public ChatAdapter(List<ChatMessage> messages) {
         this.messages = messages;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (messages.get(position).isUser()) {
+            return VIEW_TYPE_USER;
+        } else {
+            return VIEW_TYPE_AI;
+        }
+    }
+
     @NonNull
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Use a simple built-in layout for now to test
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(android.R.layout.simple_list_item_1, parent, false);
+        int layoutRes = (viewType == VIEW_TYPE_USER) ? R.layout.item_chat_user : R.layout.item_chat_ai;
+        View view = LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent, false);
         return new ChatViewHolder(view);
     }
 
@@ -36,7 +47,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         TextView textView;
         ChatViewHolder(View itemView) {
             super(itemView);
-            textView = itemView.findViewById(android.R.id.text1);
+            textView = itemView.findViewById(R.id.tvMessage);
         }
     }
 }

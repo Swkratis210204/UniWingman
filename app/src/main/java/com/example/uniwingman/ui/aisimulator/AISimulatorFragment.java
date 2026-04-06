@@ -1,82 +1,84 @@
 package com.example.uniwingman.ui.aisimulator;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.example.uniwingman.R; // Ensure you import your R file
+import com.example.uniwingman.R;
 import com.example.uniwingman.databinding.FragmentAiSimulatorBinding;
 import java.util.ArrayList;
-import java.util.List;
 
 public class AISimulatorFragment extends Fragment {
     private FragmentAiSimulatorBinding binding;
+    private AISimulatorViewModel viewModel;
     private ChatAdapter adapter;
-    private final List<ChatMessage> messageList = new ArrayList<>();
 
-    @SuppressLint("NotifyDataSetChanged")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAiSimulatorBinding.inflate(inflater, container, false);
+        viewModel = new ViewModelProvider(this).get(AISimulatorViewModel.class);
 
-        // 1. Setup RecyclerView
-        binding.rvMessages.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new ChatAdapter(messageList);
-        binding.rvMessages.setAdapter(adapter);
-
-        // 2. Clear test data and add greeting
-        messageList.clear();
-        addNewMessage("Γεια! Είμαι ο AI βοηθός σου. Πώς μπορώ να βοηθήσω;", false);
-
-        // 3. Setup Send Button
-        binding.btnSend.setOnClickListener(v -> {
-            String text = binding.etMessage.getText().toString().trim();
-            if (!text.isEmpty()) {
-                sendMessage(text);
-            }
-        });
-
-        // 4. Setup Model Selection Toggles
-        setupToggles();
+        setupUI();
+        observeViewModel();
 
         return binding.getRoot();
     }
 
-    private void sendMessage(String text) {
-        addNewMessage(text, true);
-        binding.etMessage.setText("");
+    private void setupUI() {
+        // Initialize adapter with empty list so rvMessages isn't "waiting"
+        adapter = new ChatAdapter(new ArrayList<>());
+        binding.rvMessages.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.rvMessages.setAdapter(adapter);
 
-        // Simulated AI response (Replace with real AI logic later)
-        binding.rvMessages.postDelayed(() ->
-                addNewMessage("Έλαβα το μήνυμά σου! (Εδώ θα απαντήσει το μοντέλο)", false), 1000);
+        binding.btnSend.setOnClickListener(v -> {
+            String text = binding.etMessage.getText().toString().trim();
+            if (!text.isEmpty()) {
+                viewModel.sendMessage(text);
+                binding.etMessage.setText("");
+            }
+        });
+
+        binding.btnBasicModel.setOnClickListener(v -> switchModel(false));
+        binding.btnThinkingModel.setOnClickListener(v -> switchModel(true));
     }
 
-    private void setupToggles() {
-        binding.btnBasicModel.setOnClickListener(v -> {
+    private void observeViewModel() {
+        viewModel.getMessages().observe(getViewLifecycleOwner(), messages -> {
+            if (messages != null) {
+                // Update the adapter with the fresh list
+                adapter = new ChatAdapter(messages);
+                binding.rvMessages.setAdapter(adapter);
+
+                // Smooth scroll to bottom
+                binding.rvMessages.post(() ->
+                        binding.rvMessages.scrollToPosition(messages.size() - 1));
+            }
+        });
+    }
+
+    private void switchModel(boolean isThinking) {
+        viewModel.setModelMode(isThinking);
+
+        // This refreshes the greeting when the user clicks the buttons
+        viewModel.refreshGreeting();
+
+        if (isThinking) {
+            binding.btnThinkingModel.setBackgroundResource(R.drawable.bg_model_selected);
+            binding.btnBasicModel.setBackgroundResource(android.R.color.transparent);
+            binding.btnThinkingModel.setTextColor(0xFFFFFFFF);
+            binding.btnBasicModel.setTextColor(0xFFB0C8E8);
+            binding.tvModelDescription.setText("Online · Βαθιά σκέψη");
+        } else {
             binding.btnBasicModel.setBackgroundResource(R.drawable.bg_model_selected);
-            binding.btnBasicModel.setTextColor(0xFFFFFFFF);
             binding.btnThinkingModel.setBackgroundResource(android.R.color.transparent);
+            binding.btnBasicModel.setTextColor(0xFFFFFFFF);
             binding.btnThinkingModel.setTextColor(0xFFB0C8E8);
             binding.tvModelDescription.setText("Offline · Γρήγορες απαντήσεις");
-        });
-
-        binding.btnThinkingModel.setOnClickListener(v -> {
-            binding.btnThinkingModel.setBackgroundResource(R.drawable.bg_model_selected);
-            binding.btnThinkingModel.setTextColor(0xFFFFFFFF);
-            binding.btnBasicModel.setBackgroundResource(android.R.color.transparent);
-            binding.btnBasicModel.setTextColor(0xFFB0C8E8);
-            binding.tvModelDescription.setText("Online · Βαθιά σκέψη & Ανάλυση");
-        });
-    }
-
-    private void addNewMessage(String text, boolean isUser) {
-        messageList.add(new ChatMessage(text, isUser));
-        adapter.notifyItemInserted(messageList.size() - 1);
-        binding.rvMessages.scrollToPosition(messageList.size() - 1);
+        }
     }
 
     @Override
