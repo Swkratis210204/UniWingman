@@ -38,6 +38,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.8")
     implementation("io.github.cdimascio:dotenv-java:3.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation(libs.google.gson)
     implementation(libs.appcompat)
     implementation(libs.material)
