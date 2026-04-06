@@ -29,21 +29,32 @@ public class AISimulatorFragment extends Fragment {
     }
 
     private void setupUI() {
-        // Initialize adapter with empty list so rvMessages isn't "waiting"
+        // 1. Initialize RecyclerView and Adapter
         adapter = new ChatAdapter(new ArrayList<>());
         binding.rvMessages.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvMessages.setAdapter(adapter);
 
-        binding.btnSend.setOnClickListener(v -> {
-            String text = binding.etMessage.getText().toString().trim();
-            if (!text.isEmpty()) {
-                viewModel.sendMessage(text);
-                binding.etMessage.setText("");
-            }
+        // 2. Button Click Listener
+        binding.btnSend.setOnClickListener(v -> handleSendMessage());
+
+        // 3. Keyboard "Enter/Send" Listener
+        binding.etMessage.setOnEditorActionListener((v, actionId, event) -> {
+            // Triggers on the keyboard's "Send" action
+            handleSendMessage();
+            return true;
         });
 
+        // 4. Model Selection Listeners
         binding.btnBasicModel.setOnClickListener(v -> switchModel(false));
         binding.btnThinkingModel.setOnClickListener(v -> switchModel(true));
+    }
+
+    private void handleSendMessage() {
+        String text = binding.etMessage.getText().toString().trim();
+        if (!text.isEmpty()) {
+            viewModel.sendMessage(text);
+            binding.etMessage.setText("");
+        }
     }
 
     private void observeViewModel() {

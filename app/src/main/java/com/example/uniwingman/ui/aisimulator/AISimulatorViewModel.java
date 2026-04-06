@@ -13,8 +13,6 @@ public class AISimulatorViewModel extends ViewModel {
     private final ChatRepository repository = new ChatRepository();
 
     public AISimulatorViewModel() {
-        // FIX: Do not hardcode the string here.
-        // Call refreshGreeting to pull the correct message from the Repository immediately.
         refreshGreeting();
     }
 
