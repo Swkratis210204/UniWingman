@@ -2,7 +2,6 @@ package com.example.uniwingman.ui.auth; // Άλλαξέ το αν χρειάζε
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +17,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText passwordEditText;
     private Button loginButton;
     private TextView goToSignUpText;
+    private TextView forgotPasswordText;
     private SupabaseAuth supabaseAuth;
 
     @Override
@@ -29,15 +29,44 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         goToSignUpText = findViewById(R.id.goToSignUpText);
+        forgotPasswordText = findViewById(R.id.forgotPasswordText);
 
         supabaseAuth = new SupabaseAuth();
 
+        // Λειτουργία Login
         loginButton.setOnClickListener(v -> performLogin());
 
-        // Εδώ λέμε: Αν πατήσει "Κάνε Εγγραφή", πήγαινε στο SignUpActivity
+        // Λειτουργία μετάβασης σε Εγγραφή
         goToSignUpText.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
+        });
+
+        // Λειτουργία "Ξέχασες τον κωδικό"
+        forgotPasswordText.setOnClickListener(v -> {
+            String email = emailEditText.getText().toString().trim();
+
+            if (email.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Γράψε πρώτα το email σου στο πεδίο από πάνω!", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            // Καλούμε την Supabase για επαναφορά χρησιμοποιώντας το AuthCallback
+            supabaseAuth.resetPassword(email, new SupabaseAuth.AuthCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(LoginActivity.this, "Το email στάλθηκε! Έλεγξε τα εισερχόμενά σου.", Toast.LENGTH_LONG).show();
+                    });
+                }
+
+                @Override
+                public void onError(String errorMsg) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(LoginActivity.this, "Σφάλμα! Βεβαιώσου ότι το email είναι σωστό. (" + errorMsg + ")", Toast.LENGTH_LONG).show();
+                    });
+                }
+            });
         });
     }
 
