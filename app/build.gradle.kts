@@ -1,6 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+
 plugins {
     alias(libs.plugins.android.application)
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
 
 android {
     namespace = "com.example.uniwingman"
@@ -12,8 +23,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     signingConfigs {
@@ -66,4 +77,7 @@ dependencies {
     implementation(libs.okhttp3.okhttp)
     implementation(libs.google.gson)
     implementation(libs.cdimascio.dotenv.java)
+    // Google Maps & Τοποθεσία
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.1.0")
 }
