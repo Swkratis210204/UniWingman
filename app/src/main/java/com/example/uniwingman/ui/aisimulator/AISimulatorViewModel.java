@@ -1,25 +1,31 @@
 package com.example.uniwingman.ui.aisimulator;
 
+import android.app.Application;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel; // Changed from ViewModel
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AISimulatorViewModel extends ViewModel {
+public class AISimulatorViewModel extends AndroidViewModel { // Extend AndroidViewModel
     private final MutableLiveData<List<ChatMessage>> mMessages = new MutableLiveData<>();
-    private final ChatRepository repository = new ChatRepository();
+    private final ChatRepository repository;
 
-    // Each mode has its own independent conversation list
     private final List<ChatMessage> basicMessages    = new ArrayList<>();
     private final List<ChatMessage> thinkingMessages = new ArrayList<>();
 
     private boolean isThinkingMode = false;
 
-    public AISimulatorViewModel() {
+    public AISimulatorViewModel(@NonNull Application application) {
+        super(application);
+        // Now we can pass the context to the repository to load basic_info.json
+        this.repository = new ChatRepository(application.getApplicationContext());
+
         basicMessages.add(new ChatMessage(ChatRepository.BASIC_GREETING, false));
         thinkingMessages.add(new ChatMessage(ChatRepository.THINKING_GREETING, false));
-        // Start in basic mode
+
+        // Initial UI state
         mMessages.setValue(new ArrayList<>(basicMessages));
     }
 
@@ -33,7 +39,6 @@ public class AISimulatorViewModel extends ViewModel {
 
     public void setModelMode(boolean isThinking) {
         isThinkingMode = isThinking;
-        // Switch to the other conversation — no data is lost
         List<ChatMessage> current = isThinking ? thinkingMessages : basicMessages;
         mMessages.setValue(new ArrayList<>(current));
     }
@@ -44,8 +49,6 @@ public class AISimulatorViewModel extends ViewModel {
         currentList.add(new ChatMessage(text, true));
         mMessages.setValue(new ArrayList<>(currentList));
 
-        // Capture mode now so the callback always writes to the correct list,
-        // even if the user switches models before the response arrives.
         final boolean sentAsThinking = isThinkingMode;
 
         ChatRepository.AICallback callback = new ChatRepository.AICallback() {
@@ -70,7 +73,7 @@ public class AISimulatorViewModel extends ViewModel {
     private void addAiResponse(String text, boolean wasThinking) {
         List<ChatMessage> targetList = wasThinking ? thinkingMessages : basicMessages;
         targetList.add(new ChatMessage(text, false));
-        // Only update LiveData if we're still on the same mode
+
         if (wasThinking == isThinkingMode) {
             mMessages.postValue(new ArrayList<>(targetList));
         }
