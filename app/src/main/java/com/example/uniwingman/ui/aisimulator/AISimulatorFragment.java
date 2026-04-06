@@ -20,7 +20,7 @@ public class AISimulatorFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAiSimulatorBinding.inflate(inflater, container, false);
-        viewModel = new ViewModelProvider(this).get(AISimulatorViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(AISimulatorViewModel.class);
 
         setupUI();
         observeViewModel();
@@ -47,6 +47,9 @@ public class AISimulatorFragment extends Fragment {
         // 4. Model Selection Listeners
         binding.btnBasicModel.setOnClickListener(v -> switchModel(false));
         binding.btnThinkingModel.setOnClickListener(v -> switchModel(true));
+
+        // 5. Clear conversation button
+        binding.btnClearChat.setOnClickListener(v -> viewModel.clearConversation());
     }
 
     private void handleSendMessage() {
@@ -73,9 +76,6 @@ public class AISimulatorFragment extends Fragment {
 
     private void switchModel(boolean isThinking) {
         viewModel.setModelMode(isThinking);
-
-        // This refreshes the greeting when the user clicks the buttons
-        viewModel.refreshGreeting();
 
         if (isThinking) {
             binding.btnThinkingModel.setBackgroundResource(R.drawable.bg_model_selected);

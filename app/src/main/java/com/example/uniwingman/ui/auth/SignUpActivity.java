@@ -1,5 +1,6 @@
 package com.example.uniwingman.ui.auth; // Άλλαξέ το αν χρειάζεται
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -13,6 +14,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText emailEditText;
     private TextInputEditText passwordEditText;
     private Button registerButton;
+    private Button goToLoginButton;
     private SupabaseAuth supabaseAuth;
 
     @Override
@@ -23,10 +25,15 @@ public class SignUpActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.signUpEmailEditText);
         passwordEditText = findViewById(R.id.signUpPasswordEditText);
         registerButton = findViewById(R.id.registerButton);
+        goToLoginButton = findViewById(R.id.goToLoginButton);
 
         supabaseAuth = new SupabaseAuth();
 
         registerButton.setOnClickListener(v -> performSignUp());
+        goToLoginButton.setOnClickListener(v -> {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        });
     }
 
     private void performSignUp() {
