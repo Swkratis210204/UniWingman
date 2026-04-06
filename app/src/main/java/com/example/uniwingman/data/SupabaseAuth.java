@@ -117,4 +117,38 @@ public class SupabaseAuth {
             }
         });
     }
+
+    // --- RESET PASSWORD (Ξέχασες τον κωδικό) ---
+    public void resetPassword(String email, AuthCallback callback) {
+        String endpointUrl = this.url + "/auth/v1/recover"; // Το σωστό endpoint της Supabase
+
+        JsonObject jsonBody = new JsonObject();
+        jsonBody.addProperty("email", email);
+
+        RequestBody body = RequestBody.create(jsonBody.toString(), MediaType.get("application/json; charset=utf-8"));
+
+        Request request = new Request.Builder()
+                .url(endpointUrl)
+                .addHeader("apikey", this.password)
+                .addHeader("Authorization", "Bearer " + this.password)
+                .addHeader("Content-Type", "application/json")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError("Αποτυχία δικτύου: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    callback.onSuccess("Email sent");
+                } else {
+                    callback.onError("Σφάλμα σύνδεσης. Κωδικός: " + response.code());
+                }
+            }
+        });
+    }
 }
