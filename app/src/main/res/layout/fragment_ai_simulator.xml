@@ -27,7 +27,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="AI Simulator"
+                android:text="UniWingman AI"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
@@ -36,7 +36,7 @@
                 android:id="@+id/btnClearChat"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:background="@android:color/transparent"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_delete"
                 app:tint="#FFFFFF"
                 android:contentDescription="Clear conversation"/>
@@ -59,8 +59,7 @@
                 android:textSize="13sp"
                 android:textColor="#FFFFFF"
                 android:background="@drawable/bg_model_selected"
-                android:stateListAnimator="@null"
-                android:minHeight="48dp" />
+                android:stateListAnimator="@null" />
 
             <Button
                 android:id="@+id/btnThinkingModel"
@@ -92,7 +91,9 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="12dp"
-        android:clipToPadding="false"/>
+        android:clipToPadding="false"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"/>
 
     <LinearLayout
         android:id="@+id/layoutTyping"
@@ -106,7 +107,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Πληκτρολογεί..."
+            android:text="Ο UniWingman πληκτρολογεί..."
             android:textColor="#888780"
             android:textSize="12sp"/>
 
@@ -137,7 +138,7 @@
             android:maxLines="4"
             android:minHeight="48dp"
             android:layout_marginEnd="8dp"
-            android:inputType="textMultiLine|textCapSentences"
+            android:inputType="textShortMessage|textAutoCorrect|textCapSentences"
             android:imeOptions="actionSend" />
 
         <ImageButton

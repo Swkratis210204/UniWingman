@@ -2,39 +2,36 @@ package com.example.uniwingman.ui.aisimulator;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel; // Changed from ViewModel
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AISimulatorViewModel extends AndroidViewModel { // Extend AndroidViewModel
+public class AISimulatorViewModel extends AndroidViewModel {
     private final MutableLiveData<List<ChatMessage>> mMessages = new MutableLiveData<>();
     private final ChatRepository repository;
 
-    private final List<ChatMessage> basicMessages    = new ArrayList<>();
+    private final List<ChatMessage> basicMessages = new ArrayList<>();
     private final List<ChatMessage> thinkingMessages = new ArrayList<>();
 
     private boolean isThinkingMode = false;
 
+    public static final String BASIC_GREETING = "Basic Mode: Γρήγορες πληροφορίες για το ΟΠΑ.";
+    public static final String THINKING_GREETING = "Critical Thinking: Έτοιμος για ανάλυση.";
+
     public AISimulatorViewModel(@NonNull Application application) {
         super(application);
-        // Now we can pass the context to the repository to load basic_info.json
         this.repository = new ChatRepository(application.getApplicationContext());
 
-        basicMessages.add(new ChatMessage(ChatRepository.BASIC_GREETING, false));
-        thinkingMessages.add(new ChatMessage(ChatRepository.THINKING_GREETING, false));
+        basicMessages.add(new ChatMessage(BASIC_GREETING, false));
+        thinkingMessages.add(new ChatMessage(THINKING_GREETING, false));
 
-        // Initial UI state
         mMessages.setValue(new ArrayList<>(basicMessages));
     }
 
     public LiveData<List<ChatMessage>> getMessages() {
         return mMessages;
-    }
-
-    public boolean isThinkingMode() {
-        return isThinkingMode;
     }
 
     public void setModelMode(boolean isThinking) {
@@ -44,8 +41,9 @@ public class AISimulatorViewModel extends AndroidViewModel { // Extend AndroidVi
     }
 
     public void sendMessage(String text) {
-        List<ChatMessage> currentList = isThinkingMode ? thinkingMessages : basicMessages;
+        if (text == null || text.trim().isEmpty()) return;
 
+        List<ChatMessage> currentList = isThinkingMode ? thinkingMessages : basicMessages;
         currentList.add(new ChatMessage(text, true));
         mMessages.setValue(new ArrayList<>(currentList));
 
@@ -83,11 +81,11 @@ public class AISimulatorViewModel extends AndroidViewModel { // Extend AndroidVi
         if (isThinkingMode) {
             repository.clearThinkingHistory();
             thinkingMessages.clear();
-            thinkingMessages.add(new ChatMessage(ChatRepository.THINKING_GREETING, false));
+            thinkingMessages.add(new ChatMessage(THINKING_GREETING, false));
             mMessages.setValue(new ArrayList<>(thinkingMessages));
         } else {
             basicMessages.clear();
-            basicMessages.add(new ChatMessage(ChatRepository.BASIC_GREETING, false));
+            basicMessages.add(new ChatMessage(BASIC_GREETING, false));
             mMessages.setValue(new ArrayList<>(basicMessages));
         }
     }
