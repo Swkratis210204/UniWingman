@@ -110,24 +110,27 @@ public class ChatRepository {
             }
         }
 
-        // Professor Nuclear Boost με Stemming (Ρίζα 7 χαρακτήρων)
+        // Professor Nuclear Boost με Clean Diagnostic Prints
         if (entry.has("professors")) {
             for (JsonElement p : entry.getAsJsonArray("professors")) {
                 String fullName = normalize(p.getAsJsonObject().get("name").getAsString());
                 String lastName = fullName.split("\\s+")[0];
-
-                // Δημιουργία ρίζας για αποφυγή προβλημάτων με καταλήξεις (-ος, -ου, -ο)
                 String root = lastName.substring(0, Math.min(lastName.length(), 7));
 
                 if (q.contains(root) && root.length() > 3) {
-                    Log.d("CHAT_DEBUG", "!!! NUCLEAR MATCH FOUND: " + root + " !!!");
+                    Log.d("UNI_DEBUG", "--------------------------------------------------");
+                    Log.d("UNI_DEBUG", "🎯 PROFESSOR MATCH FOUND");
+                    Log.d("UNI_DEBUG", "👤 Name: " + lastName);
+                    Log.d("UNI_DEBUG", "🔑 Root: " + root);
+                    Log.d("UNI_DEBUG", "🚀 Score: 10000.0 (NUCLEAR)");
+                    Log.d("UNI_DEBUG", "--------------------------------------------------");
                     return 10000.0;
                 }
             }
         }
 
         if (score > 0) {
-            Log.d("CHAT_DEBUG", "Final Score for " + entryTopic + ": " + score);
+            Log.d("UNI_DEBUG", String.format("📊 Entry: %-30s | Score: %6.1f", entryTopic, score));
         }
         return score;
     }
@@ -142,8 +145,6 @@ public class ChatRepository {
                 JsonObject p = el.getAsJsonObject();
                 String name = p.get("name").getAsString();
                 String lastName = normalize(name).split("\\s+")[0];
-
-                // Χρήση ρίζας και εδώ για το τελικό φιλτράρισμα της κάρτας
                 String root = lastName.substring(0, Math.min(lastName.length(), 7));
 
                 if (q.contains(root)) {
