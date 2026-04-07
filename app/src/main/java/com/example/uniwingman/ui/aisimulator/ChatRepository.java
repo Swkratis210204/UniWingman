@@ -2,6 +2,7 @@ package com.example.uniwingman.ui.aisimulator;
 
 import android.content.Context;
 import android.util.Log;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -60,11 +61,7 @@ public class ChatRepository {
     }
 
     public void fetchBasicResponse(String prompt, AICallback callback) {
-        if (basicData == null) { callback.onError("Το αρχείο δεδομένων δεν φορτώθηκε."); return; }
-        if (!basicData.has("knowledge_base")) {
-            callback.onError("Σφάλμα δομής JSON: Λείπει το knowledge_base");
-            return;
-        }
+        if (basicData == null) { callback.onError("Σφάλμα φόρτωσης JSON"); return; }
 
         JsonObject knowledgeBase = basicData.getAsJsonObject("knowledge_base");
         JsonObject bestEntry = null;
@@ -94,70 +91,75 @@ public class ChatRepository {
 
     private double calculateScore(JsonObject entry, String q) {
         double score = 0;
+        String entryTopic = entry.has("topic") ? entry.get("topic").getAsString() : "Unknown";
 
         if (entry.has("keywords")) {
             for (JsonElement k : entry.getAsJsonArray("keywords")) {
                 String key = normalize(k.getAsString());
-
                 if (q.contains(key)) {
                     double weight = 100.0;
-
-                    // Noise Reduction: Μείωση βαρύτητας σε πολύ κοινές λέξεις
-                    if (key.equals("email") || key.equals("πληροφορικη") || key.equals("οπα") || key.equals("τηλεφωνο") || key.equals("ωρες")) {
+                    if (key.equals("οπα") || key.equals("email") || key.equals("πληροφορικη") || key.equals("πατησιων")) {
                         weight = 25.0;
                     }
-
-                    score += weight;
-
-                    // Length Bonus: Οι μεγάλες λέξεις (π.χ. γραμματεια) δίνουν πολύ περισσότερο score
-                    if (key.length() > 5) {
-                        score += (key.length() * 20);
+                    if (key.equals("γραμματεια") || key.equals("φαγητο") || key.equals("βιβλια") ||
+                            key.equals("δηλωση μαθηματων") || key.equals("δηλωση βιβλιων") || key.equals("ευδοξος")) {
+                        weight = 500.0;
                     }
+                    score += weight + (key.length() * 15);
                 }
             }
         }
 
-        // Professor Matching: Υψηλή προτεραιότητα αν βρεθεί επώνυμο
+        // Professor Nuclear Boost με Stemming (Ρίζα 7 χαρακτήρων)
         if (entry.has("professors")) {
             for (JsonElement p : entry.getAsJsonArray("professors")) {
-                String lastName = normalize(p.getAsJsonObject().get("name").getAsString()).split("\\s+")[0];
-                if (q.contains(lastName) && lastName.length() > 3) {
-                    return 900.0;
+                String fullName = normalize(p.getAsJsonObject().get("name").getAsString());
+                String lastName = fullName.split("\\s+")[0];
+
+                // Δημιουργία ρίζας για αποφυγή προβλημάτων με καταλήξεις (-ος, -ου, -ο)
+                String root = lastName.substring(0, Math.min(lastName.length(), 7));
+
+                if (q.contains(root) && root.length() > 3) {
+                    Log.d("CHAT_DEBUG", "!!! NUCLEAR MATCH FOUND: " + root + " !!!");
+                    return 10000.0;
                 }
             }
         }
 
+        if (score > 0) {
+            Log.d("CHAT_DEBUG", "Final Score for " + entryTopic + ": " + score);
+        }
         return score;
     }
 
     private String formatAnswer(JsonObject entry, String query) {
-        if (entry.has("full_answer") && !entry.has("professors")) {
-            return entry.get("full_answer").getAsString();
-        }
-
         if (entry.has("professors")) {
             StringBuilder sb = new StringBuilder();
             String q = normalize(query);
-            boolean foundAny = false;
+            boolean foundSpecific = false;
 
             for (JsonElement el : entry.getAsJsonArray("professors")) {
                 JsonObject p = el.getAsJsonObject();
                 String name = p.get("name").getAsString();
                 String lastName = normalize(name).split("\\s+")[0];
 
-                if (q.contains(lastName)) {
-                    if (foundAny) sb.append("\n\n---\n\n");
+                // Χρήση ρίζας και εδώ για το τελικό φιλτράρισμα της κάρτας
+                String root = lastName.substring(0, Math.min(lastName.length(), 7));
+
+                if (q.contains(root)) {
+                    if (foundSpecific) sb.append("\n\n---\n\n");
                     sb.append("👤 **").append(name).append("**\n")
                             .append("🎓 ").append(p.get("role").getAsString()).append("\n")
                             .append("📍 ").append(p.get("office").getAsString()).append("\n")
                             .append("✉️ ").append(p.get("email").getAsString()).append("\n")
                             .append("🕒 ").append(p.get("hours").getAsString());
-                    foundAny = true;
+                    foundSpecific = true;
                 }
             }
-            return foundAny ? sb.toString() : entry.get("full_answer").getAsString();
+            if (foundSpecific) return sb.toString();
         }
-        return "Σφάλμα μορφοποίησης απάντησης.";
+
+        return entry.has("full_answer") ? entry.get("full_answer").getAsString() : "Σφάλμα μορφοποίησης.";
     }
 
     private void initThinkingSystemMessage() {
