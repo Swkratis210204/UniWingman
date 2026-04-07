@@ -12,9 +12,9 @@
         android:title="AI Simulator" />
 
     <item
-        android:id="@+id/navigation_search"
-        android:icon="@drawable/baseline_search_24"
-        android:title="Search" />
+        android:id="@+id/navigation_map"
+        android:icon="@drawable/baseline_map_24"
+        android:title="Χάρτης" />
 
     <item
         android:id="@+id/navigation_profile"
