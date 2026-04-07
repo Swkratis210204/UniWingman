@@ -57,6 +57,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            app:hintTextColor="#757575"
+            app:boxStrokeColor="#1E3A8A"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -67,6 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
+                android:textColor="#000000"
                 android:inputType="textEmailAddress"
                 android:padding="16dp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -76,6 +79,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            app:hintTextColor="#757575"
+            app:boxStrokeColor="#1E3A8A"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -87,6 +92,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Κωδικός"
+                android:textColor="#000000"
                 android:inputType="textPassword"
                 android:padding="16dp" />
         </com.google.android.material.textfield.TextInputLayout>

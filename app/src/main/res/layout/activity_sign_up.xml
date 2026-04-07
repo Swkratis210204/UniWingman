@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="32dp">
+    android:padding="32dp"
+    android:background="@color/white">
 
     <TextView
         android:layout_width="wrap_content"
@@ -13,12 +14,15 @@
         android:layout_marginBottom="32dp"
         android:text="Δημιουργία Λογαριασμού"
         android:textSize="26sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="@color/black" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        app:boxStrokeColor="@color/nav_selected"
+        app:hintTextColor="@color/nav_unselected"
         app:boxCornerRadiusBottomEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
@@ -29,6 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email"
+            android:textColor="@color/black"
             android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -36,6 +41,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
+        app:boxStrokeColor="@color/nav_selected"
+        app:hintTextColor="@color/nav_unselected"
         app:boxCornerRadiusBottomEnd="8dp"
         app:boxCornerRadiusBottomStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
@@ -47,6 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Κωδικός (τουλ. 6 χαρακτήρες)"
+            android:textColor="@color/black"
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -55,6 +63,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         app:cornerRadius="8dp"
+        android:backgroundTint="@color/nav_selected"
         android:text="ΕΓΓΡΑΦΗ" />
 
     <Button
@@ -63,6 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="Έχεις ήδη λογαριασμό; Σύνδεση"
+        android:textColor="@color/nav_selected"
         style="?attr/borderlessButtonStyle" />
 
 </LinearLayout>
