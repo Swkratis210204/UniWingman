@@ -1,4 +1,4 @@
-package com.example.uniwingman.ui.auth; // Άλλαξέ το αν χρειάζεται
+package com.example.uniwingman.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,40 +33,15 @@ public class LoginActivity extends AppCompatActivity {
 
         supabaseAuth = new SupabaseAuth();
 
-        // Λειτουργία Login
         loginButton.setOnClickListener(v -> performLogin());
 
-        // Λειτουργία μετάβασης σε Εγγραφή
         goToSignUpText.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
         });
 
-        // Λειτουργία "Ξέχασες τον κωδικό"
         forgotPasswordText.setOnClickListener(v -> {
-            String email = emailEditText.getText().toString().trim();
-
-            if (email.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Γράψε πρώτα το email σου στο πεδίο από πάνω!", Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            // Καλούμε την Supabase για επαναφορά χρησιμοποιώντας το AuthCallback
-            supabaseAuth.resetPassword(email, new SupabaseAuth.AuthCallback() {
-                @Override
-                public void onSuccess(String result) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(LoginActivity.this, "Το email στάλθηκε! Έλεγξε τα εισερχόμενά σου.", Toast.LENGTH_LONG).show();
-                    });
-                }
-
-                @Override
-                public void onError(String errorMsg) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(LoginActivity.this, "Σφάλμα! Βεβαιώσου ότι το email είναι σωστό. (" + errorMsg + ")", Toast.LENGTH_LONG).show();
-                    });
-                }
-            });
+            Toast.makeText(LoginActivity.this, "Η επαναφορά κωδικού είναι προσωρινά μη διαθέσιμη.", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -83,12 +58,12 @@ public class LoginActivity extends AppCompatActivity {
 
         supabaseAuth.login(email, password, new SupabaseAuth.AuthCallback() {
             @Override
-            public void onSuccess(String token) {
+            public void onSuccess(String userId) {
                 runOnUiThread(() -> {
                     Toast.makeText(LoginActivity.this, "Επιτυχής Σύνδεση!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
-                    finish(); // Κλείνουμε το Login
+                    finish();
                 });
             }
 

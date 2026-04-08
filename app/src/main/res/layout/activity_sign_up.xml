@@ -29,6 +29,26 @@
         app:boxCornerRadiusTopStart="8dp">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/signUpUsernameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Όνομα Χρήστη (Username)"
+            android:textColor="@color/black"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:boxStrokeColor="@color/nav_selected"
+        app:hintTextColor="@color/nav_unselected"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/signUpEmailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

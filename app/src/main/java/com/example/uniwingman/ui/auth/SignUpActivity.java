@@ -1,4 +1,4 @@
-package com.example.uniwingman.ui.auth; // Άλλαξέ το αν χρειάζεται
+package com.example.uniwingman.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 public class SignUpActivity extends AppCompatActivity {
 
+    private TextInputEditText usernameEditText; // ΝΕΟ ΠΕΔΙΟ
     private TextInputEditText emailEditText;
     private TextInputEditText passwordEditText;
     private Button registerButton;
@@ -22,6 +23,8 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        // Σιγουρέψου ότι έφτιαξες αυτό το ID στο activity_sign_up.xml σου
+        usernameEditText = findViewById(R.id.signUpUsernameEditText);
         emailEditText = findViewById(R.id.signUpEmailEditText);
         passwordEditText = findViewById(R.id.signUpPasswordEditText);
         registerButton = findViewById(R.id.registerButton);
@@ -37,22 +40,23 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void performSignUp() {
+        String username = usernameEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
-        if (email.isEmpty() || password.length() < 6) {
-            Toast.makeText(this, "Βάλε έγκυρο email και κωδικό 6+ χαρακτήρων.", Toast.LENGTH_SHORT).show();
+        if (username.isEmpty() || email.isEmpty() || password.length() < 6) {
+            Toast.makeText(this, "Συμπλήρωσε όλα τα πεδία. Κωδικός 6+ χαρακτήρες.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         registerButton.setEnabled(false);
 
-        supabaseAuth.signUp(email, password, new SupabaseAuth.AuthCallback() {
+        // Καλούμε την ανανεωμένη συνάρτηση που παίρνει και το username
+        supabaseAuth.signUp(username, email, password, new SupabaseAuth.AuthCallback() {
             @Override
             public void onSuccess(String resultMsg) {
                 runOnUiThread(() -> {
                     Toast.makeText(SignUpActivity.this, "Η εγγραφή πέτυχε! Τώρα κάνε σύνδεση.", Toast.LENGTH_LONG).show();
-                    // ΑΥΤΟ ΚΑΝΕΙ ΤΟ REDIRECT: Κλείνει την οθόνη Εγγραφής και σε γυρνάει πίσω στο Login!
                     finish();
                 });
             }

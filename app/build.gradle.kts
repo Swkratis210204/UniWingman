@@ -62,6 +62,7 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-java:3.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("org.mindrot:jbcrypt:0.4")
     implementation(libs.google.gson)
     implementation(libs.appcompat)
     implementation(libs.material)
