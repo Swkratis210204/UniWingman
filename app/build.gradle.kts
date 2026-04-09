@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.okhttp3.okhttp)
     implementation(libs.google.gson)
     implementation(libs.cdimascio.dotenv.java)
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation ("org.apache.commons:commons-text:1.10.0")
     // Google Maps & Τοποθεσία
     implementation("com.google.android.gms:play-services-maps:18.2.0")
