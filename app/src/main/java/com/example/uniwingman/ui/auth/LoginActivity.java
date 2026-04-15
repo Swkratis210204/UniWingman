@@ -30,6 +30,10 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         goToSignUpText = findViewById(R.id.goToSignUpText);
         forgotPasswordText = findViewById(R.id.forgotPasswordText);
+        passwordEditText.setOnEditorActionListener((v, actionId, event) -> {
+            performLogin();
+            return true;
+        });
 
         supabaseAuth = new SupabaseAuth();
 
