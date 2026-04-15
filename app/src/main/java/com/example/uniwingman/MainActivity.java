@@ -21,14 +21,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1. CHECK FIRST
+        // 1. Keep this one at the top
         if (!OnboardingActivity.isOnboardingDone(this)) {
             startActivity(new Intent(this, OnboardingActivity.class));
             finish();
             return;
         }
 
-        // 2. INITIALIZE UI ONLY IF DONE
+        // 2. Load UI
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -36,12 +36,6 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-        // Inside MainActivity onCreate
-        if (!OnboardingActivity.isOnboardingDone(this)) {
-            startActivity(new Intent(this, OnboardingActivity.class));
-            finish();
-            return;
-        }
     }
 
 }
