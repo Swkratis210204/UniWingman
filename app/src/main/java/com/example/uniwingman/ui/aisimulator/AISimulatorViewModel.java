@@ -45,19 +45,23 @@ public class AISimulatorViewModel extends AndroidViewModel {
 
         List<ChatMessage> currentList = isThinkingMode ? thinkingMessages : basicMessages;
         currentList.add(new ChatMessage(text, true));
+        currentList.add(ChatMessage.loading());
         mMessages.setValue(new ArrayList<>(currentList));
 
         final boolean sentAsThinking = isThinkingMode;
 
         ChatRepository.AICallback callback = new ChatRepository.AICallback() {
+            final long startTime = System.currentTimeMillis();
+
             @Override
             public void onSuccess(String response) {
-                addAiResponse(response, sentAsThinking);
+                long elapsed = System.currentTimeMillis() - startTime;
+                addAiResponse(response, sentAsThinking, sentAsThinking ? elapsed : -1);
             }
 
             @Override
             public void onError(String error) {
-                addAiResponse("Σφάλμα: " + error, sentAsThinking);
+                addAiResponse("Σφάλμα: " + error, sentAsThinking, -1);
             }
         };
 
@@ -68,9 +72,19 @@ public class AISimulatorViewModel extends AndroidViewModel {
         }
     }
 
-    private void addAiResponse(String text, boolean wasThinking) {
+    private void addAiResponse(String text, boolean wasThinking, long responseTimeMs) {
         List<ChatMessage> targetList = wasThinking ? thinkingMessages : basicMessages;
-        targetList.add(new ChatMessage(text, false));
+
+        // Αφαίρεσε το loading
+        if (!targetList.isEmpty() && targetList.get(targetList.size() - 1).getType() == ChatMessage.Type.LOADING) {
+            targetList.remove(targetList.size() - 1);
+        }
+
+        // Πρόσθεσε την απάντηση
+        ChatMessage response = wasThinking
+                ? ChatMessage.aiWithTime(text, responseTimeMs)
+                : new ChatMessage(text, false);
+        targetList.add(response);
 
         if (wasThinking == isThinkingMode) {
             mMessages.postValue(new ArrayList<>(targetList));

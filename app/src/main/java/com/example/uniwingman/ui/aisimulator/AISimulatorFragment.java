@@ -35,7 +35,6 @@ public class AISimulatorFragment extends Fragment {
         adapter = new ChatAdapter(new ArrayList<>());
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
 
-        // ΣΗΜΑΝΤΙΚΟ: Ξεκινάει τη λίστα από κάτω αλλά επιτρέπει scroll up
         layoutManager.setStackFromEnd(false);
 
         binding.rvMessages.setLayoutManager(layoutManager);
