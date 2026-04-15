@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F8FF"
+    android:gravity="center_horizontal">
+
+    <!-- Top bar με Back και Skip -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/tvBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:text="← Πίσω"
+            android:textColor="#185FA5"
+            android:textSize="14sp"
+            android:padding="8dp"
+            android:visibility="gone"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/tvSkip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="24dp"
+            android:text="Παράλειψη"
+            android:textColor="#185FA5"
+            android:textSize="14sp"
+            android:padding="8dp"/>
+
+    </LinearLayout>
+
+    <!-- Icon -->
+    <ImageView
+        android:id="@+id/ivSlideIcon"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="40dp"
+        android:scaleType="fitCenter"/>
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvSlideTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:gravity="center"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#185FA5"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Description -->
+    <TextView
+        android:id="@+id/tvSlideDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:gravity="center"
+        android:textSize="15sp"
+        android:textColor="#555555"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="48dp"/>
+
+    <!-- Spacer -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <!-- Dots -->
+    <LinearLayout
+        android:id="@+id/dotsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Next Button -->
+    <Button
+        android:id="@+id/btnNext"
+        android:layout_width="240dp"
+        android:layout_height="52dp"
+        android:layout_marginBottom="48dp"
+        android:text="Επόμενο →"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#185FA5"
+        android:stateListAnimator="@null"/>
+
+</LinearLayout>

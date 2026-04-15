@@ -2,6 +2,8 @@ package com.example.uniwingman.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,23 +32,47 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         goToSignUpText = findViewById(R.id.goToSignUpText);
         forgotPasswordText = findViewById(R.id.forgotPasswordText);
-        passwordEditText.setOnEditorActionListener((v, actionId, event) -> {
-            performLogin();
-            return true;
-        });
 
         supabaseAuth = new SupabaseAuth();
+
+        // Enter στο email → πάει στο password
+        emailEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT ||
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                String email = emailEditText.getText().toString().trim();
+                String password = passwordEditText.getText().toString().trim();
+                if (!email.isEmpty() && !password.isEmpty()) {
+                    performLogin();
+                } else {
+                    passwordEditText.requestFocus();
+                }
+                return true;
+            }
+            return false;
+        });
+
+        // Enter στο password → login αν και τα δύο είναι συμπληρωμένα
+        passwordEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_ACTION_GO ||
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                performLogin();
+                return true;
+            }
+            return false;
+        });
 
         loginButton.setOnClickListener(v -> performLogin());
 
         goToSignUpText.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
         });
 
-        forgotPasswordText.setOnClickListener(v -> {
-            Toast.makeText(LoginActivity.this, "Η επαναφορά κωδικού είναι προσωρινά μη διαθέσιμη.", Toast.LENGTH_SHORT).show();
-        });
+        forgotPasswordText.setOnClickListener(v ->
+                Toast.makeText(LoginActivity.this,
+                        "Η επαναφορά κωδικού είναι προσωρινά μη διαθέσιμη.",
+                        Toast.LENGTH_SHORT).show()
+        );
     }
 
     private void performLogin() {
