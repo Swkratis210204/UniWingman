@@ -90,8 +90,13 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String userId) {
                 runOnUiThread(() -> {
-                    Toast.makeText(LoginActivity.this, "Επιτυχής Σύνδεση!", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    Intent intent;
+                    if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {
+                        intent = new Intent(LoginActivity.this, OnboardingActivity.class);
+                    } else {
+                        intent = new Intent(LoginActivity.this, MainActivity.class);
+                    }
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
                 });

@@ -102,10 +102,11 @@ public class SignUpActivity extends AppCompatActivity {
             public void onSuccess(String resultMsg) {
                 runOnUiThread(() -> {
                     Toast.makeText(SignUpActivity.this,
-                            "Καλώς ήρθες! 🎉",
-                            Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(SignUpActivity.this, OnboardingActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            "Έχουμε στείλει email επιβεβαίωσης! Επιβεβαίωσε το email σου και μετά συνδέσου.",
+                            Toast.LENGTH_LONG).show();
+                    // Πήγαινε στο Login, ΟΧΙ στο Onboarding
+                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                     finish();
                 });
