@@ -4,21 +4,25 @@
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/baseline_home_24"
-        android:title="Home" />
+        android:title="Αρχική"
+        android:contentDescription="Αρχική σελίδα, ανακοινώσεις και νέα" />
 
     <item
         android:id="@+id/navigation_ai_simulator"
         android:icon="@drawable/baseline_psychology_24"
-        android:title="AI Simulator" />
+        android:title="AI Βοηθός"
+        android:contentDescription="Συνομιλία με τον ψηφιακό βοηθό τεχνητής νοημοσύνης" />
 
     <item
         android:id="@+id/navigation_map"
         android:icon="@drawable/baseline_map_24"
-        android:title="Χάρτης" />
+        android:title="Χάρτης"
+        android:contentDescription="Πλοήγηση στον χάρτη και εύρεση σημείων ενδιαφέροντος" />
 
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/baseline_accessibility_new_24"
-        android:title="Profile" />
+        android:title="Προφίλ"
+        android:contentDescription="Διαχείριση προφίλ, βαθμολογίες και ακαδημαϊκή πρόοδος" />
 
 </menu>
