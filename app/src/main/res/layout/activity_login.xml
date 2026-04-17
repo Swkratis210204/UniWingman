@@ -69,6 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
+                android:contentDescription="Πεδίο email"
                 android:textColor="#000000"
                 android:inputType="textEmailAddress"
                 android:padding="16dp" />
@@ -92,6 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Κωδικός"
+                android:contentDescription="Πεδίο κωδικού"
                 android:textColor="#000000"
                 android:inputType="textPassword"
                 android:padding="16dp" />
@@ -104,6 +106,7 @@
             android:layout_gravity="end"
             android:layout_marginBottom="32dp"
             android:text="Ξέχασες τον κωδικό;"
+            android:contentDescription="Ξεχάσατε τον κωδικό σας"
             android:textColor="#1E3A8A"
             android:textStyle="bold" />
 
@@ -116,7 +119,9 @@
             android:backgroundTint="#1E3A8A"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="ΣΥΝΔΕΣΗ" />
+            android:text="ΣΥΝΔΕΣΗ"
+            android:contentDescription="Κουμπί σύνδεσης"
+            />
 
         <Space
             android:layout_width="match_parent"
@@ -140,6 +145,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Κάνε Εγγραφή"
+                android:contentDescription="Μετάβαση στην εγγραφή"
                 android:textColor="#1E3A8A"
                 android:textStyle="bold" />
         </LinearLayout>

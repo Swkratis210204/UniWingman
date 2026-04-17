@@ -6,19 +6,22 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="32dp"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:importantForAccessibility="yes">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:text="Δημιουργία Λογαριασμού"
+        android:contentDescription="Επικεφαλίδα: Δημιουργία Λογαριασμού"
         android:textSize="26sp"
         android:textStyle="bold"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:accessibilityHeading="true" />
 
-    <!-- Username -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/usernameInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -34,13 +37,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Όνομα Χρήστη (Username)"
+            android:contentDescription="Εισάγετε όνομα χρήστη"
             android:textColor="@color/black"
             android:imeOptions="actionNext"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Email -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/emailInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -56,25 +60,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email"
+            android:contentDescription="Εισάγετε την διεύθυνση email σας"
             android:textColor="@color/black"
             android:imeOptions="actionNext"
             android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Password -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="16dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:accessibilityLiveRegion="polite">
 
         <TextView
             android:id="@+id/checkLength"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="✗ Τουλάχιστον 8 χαρακτήρες"
+            android:contentDescription="Απαίτηση: Τουλάχιστον 8 χαρακτήρες. Μη συμπληρωμένο."
             android:textColor="#F44336"
             android:textSize="12sp" />
 
@@ -83,6 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="✗ Ένα κεφαλαίο γράμμα (A-Z)"
+            android:contentDescription="Απαίτηση: Ένα κεφαλαίο γράμμα. Μη συμπληρωμένο."
             android:textColor="#F44336"
             android:textSize="12sp" />
 
@@ -91,12 +98,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="✗ Έναν αριθμό (0-9)"
+            android:contentDescription="Απαίτηση: Έναν αριθμό. Μη συμπληρωμένο."
             android:textColor="#F44336"
             android:textSize="12sp" />
-
     </LinearLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -106,22 +114,22 @@
         app:boxCornerRadiusBottomStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusTopStart="8dp"
-        app:passwordToggleEnabled="true">
+        app:passwordToggleEnabled="true"
+        app:passwordToggleContentDescription="Εμφάνιση ή απόκρυψη κωδικού">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/signUpPasswordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Κωδικός"
+            android:contentDescription="Εισάγετε κωδικό πρόσβασης. Ακολουθήστε τις οδηγίες ασφαλείας παραπάνω."
             android:importantForAutofill="no"
             android:imeOptions="actionNext"
             android:inputType="textPassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Live password checks -->
-
-    <!-- Confirm Password -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/confirmPasswordInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
@@ -131,27 +139,28 @@
         app:boxCornerRadiusBottomStart="8dp"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusTopStart="8dp"
-        app:passwordToggleEnabled="true">
+        app:passwordToggleEnabled="true"
+        app:passwordToggleContentDescription="Εμφάνιση ή απόκρυψη επιβεβαίωσης κωδικού">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/signUpConfirmPasswordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Επιβεβαίωση κωδικού"
+            android:contentDescription="Εισάγετε ξανά τον κωδικό για επιβεβαίωση"
             android:importantForAutofill="no"
             android:inputType="textPassword"
             android:imeOptions="actionDone"/>
-
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Register Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/registerButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         app:cornerRadius="8dp"
         android:backgroundTint="@color/nav_selected"
-        android:text="ΕΓΓΡΑΦΗ" />
+        android:text="ΕΓΓΡΑΦΗ"
+        android:contentDescription="Κουμπί για ολοκλήρωση εγγραφής" />
 
     <Button
         android:id="@+id/goToLoginButton"
@@ -159,6 +168,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="Έχεις ήδη λογαριασμό; Σύνδεση"
+        android:contentDescription="Έχετε ήδη λογαριασμό; Πατήστε εδώ για να μεταβείτε στη σελίδα σύνδεσης"
         android:textColor="@color/nav_selected"
         style="?attr/borderlessButtonStyle" />
 
