@@ -17,6 +17,7 @@
         android:textStyle="bold"
         android:textColor="@color/black" />
 
+    <!-- Username -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,9 +35,11 @@
             android:layout_height="wrap_content"
             android:hint="Όνομα Χρήστη (Username)"
             android:textColor="@color/black"
+            android:imeOptions="actionNext"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Email -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -54,9 +57,70 @@
             android:layout_height="wrap_content"
             android:hint="Email"
             android:textColor="@color/black"
+            android:imeOptions="actionNext"
             android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Password -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/checkLength"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✗ Τουλάχιστον 8 χαρακτήρες"
+            android:textColor="#F44336"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/checkUppercase"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✗ Ένα κεφαλαίο γράμμα (A-Z)"
+            android:textColor="#F44336"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/checkNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✗ Έναν αριθμό (0-9)"
+            android:textColor="#F44336"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:boxStrokeColor="@color/nav_selected"
+        app:hintTextColor="@color/nav_unselected"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/signUpPasswordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Κωδικός"
+            android:importantForAutofill="no"
+            android:imeOptions="actionNext"
+            android:inputType="textPassword"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Live password checks -->
+
+    <!-- Confirm Password -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,14 +134,17 @@
         app:passwordToggleEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/signUpPasswordEditText"
+            android:id="@+id/signUpConfirmPasswordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Κωδικός (τουλ. 6 χαρακτήρες)"
-            android:textColor="@color/black"
-            android:inputType="textPassword" />
+            android:hint="Επιβεβαίωση κωδικού"
+            android:importantForAutofill="no"
+            android:inputType="textPassword"
+            android:imeOptions="actionDone"/>
+
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Register Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/registerButton"
         android:layout_width="match_parent"
