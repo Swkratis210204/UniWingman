@@ -22,7 +22,8 @@
             android:layout_width="160dp"
             android:layout_height="150dp"
             android:src="@drawable/logo"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            android:importantForAccessibility="no" />
 
         <ImageView
             android:id="@+id/logoNameImageView"
@@ -31,7 +32,8 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp"
             android:src="@drawable/logo_name"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            android:contentDescription="UniWingman Logo" />
 
         <TextView
             android:layout_width="match_parent"
@@ -41,7 +43,8 @@
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="#1A1A1A"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:accessibilityHeading="true" />
 
         <TextView
             android:layout_width="match_parent"
@@ -69,7 +72,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
-                android:contentDescription="Πεδίο email"
+                android:contentDescription="Εισάγετε το email σας"
                 android:textColor="#000000"
                 android:inputType="textEmailAddress"
                 android:padding="16dp" />
@@ -86,14 +89,15 @@
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
-            app:passwordToggleEnabled="true">
+            app:passwordToggleEnabled="true"
+            app:passwordToggleContentDescription="Εμφάνιση ή απόκρυψη κωδικού">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Κωδικός"
-                android:contentDescription="Πεδίο κωδικού"
+                android:contentDescription="Εισάγετε τον κωδικό σας"
                 android:textColor="#000000"
                 android:inputType="textPassword"
                 android:padding="16dp" />
@@ -106,9 +110,11 @@
             android:layout_gravity="end"
             android:layout_marginBottom="32dp"
             android:text="Ξέχασες τον κωδικό;"
-            android:contentDescription="Ξεχάσατε τον κωδικό σας"
+            android:contentDescription="Ξεχάσατε τον κωδικό σας; Πατήστε εδώ για επαναφορά"
             android:textColor="#1E3A8A"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:focusable="true"
+            android:clickable="true" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/loginButton"
@@ -120,8 +126,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:text="ΣΥΝΔΕΣΗ"
-            android:contentDescription="Κουμπί σύνδεσης"
-            />
+            android:contentDescription="Κουμπί σύνδεσης στο λογαριασμό" />
 
         <Space
             android:layout_width="match_parent"
@@ -132,7 +137,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:importantForAccessibility="yes">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -145,9 +151,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Κάνε Εγγραφή"
-                android:contentDescription="Μετάβαση στην εγγραφή"
+                android:contentDescription="Δεν έχετε λογαριασμό; Πατήστε εδώ για να κάνετε εγγραφή"
                 android:textColor="#1E3A8A"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:focusable="true"
+                android:clickable="true" />
         </LinearLayout>
 
     </LinearLayout>

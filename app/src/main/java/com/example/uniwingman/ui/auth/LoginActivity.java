@@ -35,7 +35,6 @@ public class LoginActivity extends AppCompatActivity {
 
         supabaseAuth = new SupabaseAuth();
 
-        // Enter στο email → πάει στο password
         emailEditText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_NEXT ||
                     (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
@@ -51,7 +50,6 @@ public class LoginActivity extends AppCompatActivity {
             return false;
         });
 
-        // Enter στο password → login αν και τα δύο είναι συμπληρωμένα
         passwordEditText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE ||
                     actionId == EditorInfo.IME_ACTION_GO ||
@@ -69,18 +67,27 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         forgotPasswordText.setOnClickListener(v ->
-                Toast.makeText(LoginActivity.this,
-                        "Η επαναφορά κωδικού είναι προσωρινά μη διαθέσιμη.",
-                        Toast.LENGTH_SHORT).show()
+                announceForAccessibility("Η επαναφορά κωδικού είναι προσωρινά μη διαθέσιμη.")
         );
+    }
+
+    private void announceForAccessibility(String message) {
+        getWindow().getDecorView().announceForAccessibility(message);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void performLogin() {
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Συμπλήρωσε και τα δύο πεδία.", Toast.LENGTH_SHORT).show();
+        if (email.isEmpty()) {
+            announceForAccessibility("Παρακαλώ συμπληρώστε το email σας.");
+            emailEditText.requestFocus();
+            return;
+        }
+        if (password.isEmpty()) {
+            announceForAccessibility("Παρακαλώ συμπληρώστε τον κωδικό σας.");
+            passwordEditText.requestFocus();
             return;
         }
 
@@ -90,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String userId) {
                 runOnUiThread(() -> {
+                    announceForAccessibility("Σύνδεση επιτυχής.");
                     Intent intent;
                     if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {
                         intent = new Intent(LoginActivity.this, OnboardingActivity.class);
@@ -106,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onError(String errorMsg) {
                 runOnUiThread(() -> {
                     loginButton.setEnabled(true);
-                    Toast.makeText(LoginActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                    announceForAccessibility("Σφάλμα σύνδεσης: " + errorMsg);
                 });
             }
         });

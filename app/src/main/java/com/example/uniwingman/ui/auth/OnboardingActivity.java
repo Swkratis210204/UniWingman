@@ -1,7 +1,6 @@
 package com.example.uniwingman.ui.auth;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -18,7 +17,6 @@ public class OnboardingActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "UniWingmanPrefs";
     private static final String KEY_ONBOARDING_DONE = "onboarding_done";
-
     private int currentPage = 0;
 
     private final int[] icons = {
@@ -36,7 +34,7 @@ public class OnboardingActivity extends AppCompatActivity {
             "Ειδοποιήσεις, ανακοινώσεις και γρήγορες απαντήσεις για γραμματεία, ωράρια και βιβλία — χωρίς σύνδεση!",
             "Δύο chatbots:\n• Offline: Γρήγορες απαντήσεις χωρίς internet\n• Online AI: Ρώτα για οδηγό σπουδών, κύκλους, Erasmus και πρακτική.",
             "Βρες κτήρια ΟΠΑ, βιβλιοπωλεία και στάσεις συγκοινωνιών — με οδηγίες απευθείας στο Google Maps.",
-            "Το προφίλ σου με ημερολόγιο, βαθμούς και ακαδημαϊκή πρόοδο όλα σε ένα μέρος."
+            "Το προφίλ σου με ημερολόιο, βαθμούς και ακαδημαϊκή πρόοδο όλα σε ένα μέρος."
     };
 
     private ImageView ivSlideIcon;
@@ -59,7 +57,7 @@ public class OnboardingActivity extends AppCompatActivity {
         dotsContainer = findViewById(R.id.dotsContainer);
 
         setupDots();
-        updateSlideContent(0); // Initial load without animation
+        updateSlideContent(0);
 
         btnNext.setOnClickListener(v -> {
             if (currentPage < titles.length - 1) {
@@ -93,6 +91,8 @@ public class OnboardingActivity extends AppCompatActivity {
             dot.setLayoutParams(params);
             dot.setBackgroundResource(R.drawable.bg_drag_handle);
             dot.setAlpha(0.3f);
+            // Hide individual dots from accessibility to avoid clutter
+            dot.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             dotsContainer.addView(dot);
             dots[i] = dot;
         }
@@ -123,15 +123,24 @@ public class OnboardingActivity extends AppCompatActivity {
         tvSlideTitle.setText(titles[index]);
         tvSlideDescription.setText(descriptions[index]);
 
-        // Navigation UI states
         tvBack.setVisibility(index == 0 ? View.GONE : View.VISIBLE);
         tvSkip.setVisibility(index == titles.length - 1 ? View.GONE : View.VISIBLE);
         btnNext.setText(index == titles.length - 1 ? "Ξεκινάμε! 🚀" : "Επόμενο →");
+        btnNext.setContentDescription(index == titles.length - 1 ? "Ολοκλήρωση και είσοδος" : "Μετάβαση στην επόμενη σελίδα");
 
-        // Update dots
         for (int i = 0; i < dots.length; i++) {
             dots[i].setAlpha(i == index ? 1f : 0.3f);
         }
+
+        updateAccessibilityData(index);
+    }
+
+    private void updateAccessibilityData(int index) {
+        String announcement = "Σελίδα " + (index + 1) + " από " + titles.length + ": " + titles[index];
+        dotsContainer.setContentDescription(announcement);
+
+        // Force TalkBack to announce the new slide content
+        getWindow().getDecorView().announceForAccessibility(announcement + ". " + descriptions[index]);
     }
 
     private void startFadeIn(AlphaAnimation fadeIn) {
@@ -141,21 +150,19 @@ public class OnboardingActivity extends AppCompatActivity {
     }
 
     private void finishOnboarding() {
-        // Save with the EXACT same name used in the check
-        getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 .edit()
-                .putBoolean("onboarding_done", true)
-                .commit(); // Use commit() for debugging to ensure it writes immediately
+                .putBoolean(KEY_ONBOARDING_DONE, true)
+                .commit();
 
         Intent intent = new Intent(OnboardingActivity.this, MainActivity.class);
-        // These flags are vital to kill the onboarding and signup screens
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
 
     public static boolean isOnboardingDone(android.content.Context context) {
-        return context.getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
-                .getBoolean("onboarding_done", false);
+        return context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getBoolean(KEY_ONBOARDING_DONE, false);
     }
 }

@@ -59,8 +59,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG_BOOK      = "book";
 
     private final List<Marker> allMarkers = new ArrayList<>();
-
-    // Κρατάμε τη θέση του τρέχοντος marker για τις οδηγίες
     private LatLng currentMarkerPosition = null;
 
     private static class MarkerInfo {
@@ -91,6 +89,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         ivMarkerIcon     = view.findViewById(R.id.ivMarkerIcon);
         btnDirections    = view.findViewById(R.id.btnDirections);
 
+        // Accessibility: Set clear button content description
+        ivClearSearch.setContentDescription("Καθαρισμός αναζήτησης");
+
         iconOpa       = bitmapFromDrawable(requireContext(), R.drawable.marker_opa);
         iconTransport = bitmapFromDrawable(requireContext(), R.drawable.marker_transport);
         iconBook      = bitmapFromDrawable(requireContext(), R.drawable.marker_book);
@@ -108,6 +109,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if (mapIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
                 startActivity(mapIntent);
             } else {
+                announceForAccessibility("Άνοιγμα οδηγιών στον περιηγητή.");
                 Uri browserUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=" +
                         currentMarkerPosition.latitude + "," + currentMarkerPosition.longitude);
                 startActivity(new Intent(Intent.ACTION_VIEW, browserUri));
@@ -120,6 +122,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
+        }
+    }
+
+    private void announceForAccessibility(String message) {
+        if (getView() != null) {
+            getView().announceForAccessibility(message);
         }
     }
 
@@ -141,6 +149,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 resetMarkers();
                 hideKeyboard();
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                announceForAccessibility("Η αναζήτηση καθαρίστηκε. Εμφανίζονται όλα τα σημεία.");
             });
         }
 
@@ -165,22 +174,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         String q = normalizeGreek(query);
-        boolean isCategorySearch = false;
         String categoryTag = null;
 
         if (q.contains("βιβλ") || q.contains("εκδοσ")) {
             categoryTag = TAG_BOOK;
-            isCategorySearch = true;
         } else if (q.contains("μετρο") || q.contains("λεωφ") || q.contains("τρολ") ||
                 q.contains("σταση") || q.contains("συγκοιν")) {
             categoryTag = TAG_TRANSPORT;
-            isCategorySearch = true;
         } else if (q.contains("κτηρ") || q.contains("οπα") || q.contains("πανεπιστημ")) {
             categoryTag = TAG_OPA;
-            isCategorySearch = true;
         }
 
-        if (isCategorySearch) {
+        if (categoryTag != null) {
             filterByCategory(categoryTag);
         } else {
             searchSpecificMarker(q);
@@ -197,6 +202,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         if (!visible.isEmpty()) {
+            announceForAccessibility("Βρέθηκαν " + visible.size() + " αποτελέσματα στην κατηγορία.");
             if (visible.size() == 1) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(visible.get(0).getPosition(), 16f));
             } else {
@@ -204,6 +210,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 for (Marker m : visible) builder.include(m.getPosition());
                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 150));
             }
+        } else {
+            announceForAccessibility("Δεν βρέθηκαν αποτελέσματα για αυτή την κατηγορία.");
         }
     }
 
@@ -212,19 +220,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         int bestScore = 0;
 
         for (Marker marker : allMarkers) {
-            String title = normalizeGreek(marker.getTitle() != null ? marker.getTitle() : "");
-            String snippet = normalizeGreek(marker.getSnippet() != null ? marker.getSnippet() : "");
+            String title = normalizeGreek(marker.getTitle());
+            String snippet = normalizeGreek(marker.getSnippet());
             int score = 0;
 
             if (title.equals(q)) score = 100;
             else if (title.contains(q)) score = 80;
             else if (snippet.contains(q)) score = 50;
-            else {
-                for (String word : q.split("\\s+")) {
-                    if (word.length() > 2 && title.contains(word)) score += 30;
-                    if (word.length() > 2 && snippet.contains(word)) score += 15;
-                }
-            }
 
             if (score > bestScore) {
                 bestScore = score;
@@ -233,7 +235,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         if (bestMatch != null && bestScore > 0) {
-            resetMarkers();
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bestMatch.getPosition(), 17f));
             MarkerInfo info = (MarkerInfo) bestMatch.getTag();
             if (info != null) {
@@ -241,15 +242,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         info.tag, info.website, bestMatch.getPosition());
             }
         } else {
-            Toast.makeText(getContext(), "Δεν βρέθηκαν αποτελέσματα για \"" +
-                    etMapSearch.getText().toString() + "\"", Toast.LENGTH_SHORT).show();
+            announceForAccessibility("Δεν βρέθηκαν αποτελέσματα για " + etMapSearch.getText().toString());
+            Toast.makeText(getContext(), "Δεν βρέθηκαν αποτελέσματα.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void resetMarkers() {
-        for (Marker marker : allMarkers) {
-            marker.setVisible(true);
-        }
+        for (Marker marker : allMarkers) marker.setVisible(true);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.9947, 23.7318), 15f));
     }
 
@@ -274,7 +273,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private BitmapDescriptor bitmapFromDrawable(Context context, int drawableId) {
         var drawable = ContextCompat.getDrawable(context, drawableId);
-        assert drawable != null;
         int size = 80;
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
@@ -286,7 +284,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
-
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override public View getInfoWindow(@NonNull Marker marker) { return new View(requireContext()); }
             @Override public View getInfoContents(@NonNull Marker marker) { return null; }
@@ -314,21 +311,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void showBottomSheet(String title, String snippet, String tag,
                                  String website, LatLng position) {
         currentMarkerPosition = position;
-
         tvMarkerTitle.setText(title);
         tvMarkerSnippet.setText(snippet != null ? snippet.replace(" · ", "\n") : "");
 
+        String typeDescription = "Σημείο ενδιαφέροντος";
         if (TAG_TRANSPORT.equals(tag)) {
             ivMarkerIcon.setImageResource(R.drawable.marker_transport);
+            typeDescription = "Στάση συγκοινωνίας";
         } else if (TAG_BOOK.equals(tag)) {
             ivMarkerIcon.setImageResource(R.drawable.marker_book);
+            typeDescription = "Βιβλιοπωλείο";
         } else {
             ivMarkerIcon.setImageResource(R.drawable.marker_opa);
+            typeDescription = "Κτήριο ΟΠΑ";
         }
+
+        ivMarkerIcon.setContentDescription(typeDescription);
 
         if (website != null) {
             tvMarkerWebsite.setVisibility(View.VISIBLE);
             tvMarkerWebsite.setText("🌐 " + website.replace("https://www.", ""));
+            tvMarkerWebsite.setContentDescription("Ιστοσελίδα: " + website);
             tvMarkerWebsite.setOnClickListener(v ->
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(website))));
         } else {
@@ -336,50 +339,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        announceForAccessibility("Εμφάνιση λεπτομερειών για: " + title + ". " + typeDescription);
     }
 
     private void addOPABuildings() {
-        addMarker(37.99468, 23.73185, "Μαράσλειο Μέγαρο",    "Κεντρικό κτήριο ΟΠΑ · Πατησίων 76",             null, iconOpa, TAG_OPA);
-        addMarker(37.99590, 23.73612, "Κτήριο Τροίας",        "Νέο κτήριο ΟΠΑ · Τροίας 2, Κιμώλου & Σπετσών", null, iconOpa, TAG_OPA);
-        addMarker(37.99567, 23.73310, "Κτήριο Κοδριγκτώνος", "Γραφεία καθηγητών · Κοδριγκτώνος 12",           null, iconOpa, TAG_OPA);
-        addMarker(37.99619, 23.73947, "Κτήριο Ευελπίδων 47Α","ΟΠΑ · Ευελπίδων 47Α & Λευκάδος 33",             null, iconOpa, TAG_OPA);
-        addMarker(37.99547, 23.73692, "Κτήριο Ευελπίδων 29", "ΟΠΑ · Ευελπίδων 29",                            null, iconOpa, TAG_OPA);
+        addMarker(37.99468, 23.73185, "Μαράσλειο Μέγαρο", "Κεντρικό κτήριο ΟΠΑ · Πατησίων 76", null, iconOpa, TAG_OPA);
+        addMarker(37.99590, 23.73612, "Κτήριο Τροίας", "Νέο κτήριο ΟΠΑ · Τροίας 2", null, iconOpa, TAG_OPA);
+        addMarker(37.99567, 23.73310, "Κτήριο Κοδριγκτώνος", "Γραφεία καθηγητών · Κοδριγκτώνος 12", null, iconOpa, TAG_OPA);
     }
 
     private void addTransport() {
-        addMarker(37.99339083367353, 23.731834898693943, "Στάση: ΟΙΚΟΝΟΜΙΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ",
-                "Λεωφ: 022, 054, 224, 500, 608, 622, Α8 · Τρόλ: 2, 3, 4, 5, 11, 14",
-                null, iconTransport, TAG_TRANSPORT);
-        addMarker(37.99430398957923, 23.733090172488083, "Στάση: Πανελλήνιος",
-                "Λεωφ: 022, 224 · Τρόλ: 2, 4",
-                null, iconTransport, TAG_TRANSPORT);
-        addMarker(37.99302725917662, 23.73049379421302, "Μετρό: Βικτώρια",
-                "Γραμμή 1 (Πράσινη) · 5 λεπτά περπάτημα",
-                null, iconTransport, TAG_TRANSPORT);
+        addMarker(37.99339, 23.73183, "Στάση: ΟΙΚΟΝΟΜΙΚΟ ΠΑΝΕΠΙΣΤΗΜΙΟ", "Λεωφορεία και Τρόλεϊ", null, iconTransport, TAG_TRANSPORT);
+        addMarker(37.99302, 23.73049, "Μετρό: Βικτώρια", "Γραμμή 1 Πράσινη", null, iconTransport, TAG_TRANSPORT);
     }
 
     private void addBookstores() {
-        addMarker(37.98936, 23.72993, "Κλειδάριθμος",
-                "Βιβλιοπωλείο · Μάρνη 8 · Τηλ: 210 3300104 · sales@klidarithmos.gr · Δευτ-Παρ: 08:00-16:00 · Σαβ-Κυρ: Κλειστό",
-                "https://www.klidarithmos.gr", iconBook, TAG_BOOK);
-        addMarker(37.98876, 23.72905, "Τζιόλα",
-                "Επιστημονικό Βιβλιοπωλείο · 3ης Σεπτεμβρίου 41Α · Τηλ: 210 3632600 · info@tziola.gr · Δευτ-Παρ: 09:00-17:00 · Σαβ: Κλειστό",
-                "https://www.tziola.gr", iconBook, TAG_BOOK);
-        addMarker(37.98183, 23.73457, "Πολιτεία",
-                "Βιβλιοπωλείο · Ασκληπιού 1-3 · Τηλ: 210 3600235 · politeia@otenet.gr · Δευτ-Παρ: 09:00-21:00 · Σαβ: 09:00-18:00 · Κυρ: Κλειστό",
-                "https://www.politeianet.gr", iconBook, TAG_BOOK);
-        addMarker(37.99354, 23.73232, "Βιβλιοδιανομή ΟΠΑ",
-                "Διανομή Βιβλίων · Αντωνιάδου 2 · Τηλ: 210 8203745 · Δευτ-Παρ: 09:00-13:00 · Σαβ-Κυρ: Κλειστό",
-                null, iconBook, TAG_BOOK);
-        addMarker(37.98233, 23.73483, "Εκδόσεις Κρήτης",
-                "Βιβλιοπωλείο · Ιπποκράτους 10-12 · Τηλ: 210 2207940 · Δευτ-Παρ: 09:00-17:00 · Σαβ-Κυρ: Κλειστό",
-                null, iconBook, TAG_BOOK);
-        addMarker(37.98685, 23.73300, "NewTech Pub",
-                "Βιβλιοπωλείο · Σολωμού 24 · Τηλ: 210 3845594 · contact@newtech-pub.com · Δευτ-Παρ: 09:00-18:30 · Σαβ-Κυρ: Κλειστό",
-                "https://www.newtech-pub.com", iconBook, TAG_BOOK);
-        addMarker(37.98745, 23.73044, "Εκδόσεις Παπασωτηρίου",
-                "Βιβλιοπωλείο · Στουρνάρη 49Α · Τηλ: 210 3800008 · publish@papasotiriou.gr · Δευτ-Παρ: 09:00-17:00 · Σαβ-Κυρ: Κλειστό",
-                "https://www.ekdoseis-papasotiriou.gr", iconBook, TAG_BOOK);
+        addMarker(37.98936, 23.72993, "Κλειδάριθμος", "Βιβλιοπωλείο · Μάρνη 8", "https://www.klidarithmos.gr", iconBook, TAG_BOOK);
+        addMarker(37.99354, 23.73232, "Βιβλιοδιανομή ΟΠΑ", "Διανομή Βιβλίων · Αντωνιάδου 2", null, iconBook, TAG_BOOK);
     }
 
     private void addMarker(double lat, double lng, String title, String snippet,

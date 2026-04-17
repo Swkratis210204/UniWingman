@@ -4,9 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#F5F8FF"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:importantForAccessibility="yes">
 
-    <!-- Top bar με Back και Skip -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,40 +20,44 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:text="← Πίσω"
+            android:contentDescription="Επιστροφή στην προηγούμενη σελίδα"
             android:textColor="#185FA5"
             android:textSize="14sp"
             android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true"
             android:visibility="gone"/>
 
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:importantForAccessibility="no"/>
 
         <TextView
             android:id="@+id/tvSkip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
             android:layout_marginEnd="24dp"
             android:text="Παράλειψη"
+            android:contentDescription="Παράλειψη οδηγού και είσοδος στην εφαρμογή"
             android:textColor="#185FA5"
             android:textSize="14sp"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true"/>
 
     </LinearLayout>
 
-    <!-- Icon -->
     <ImageView
         android:id="@+id/ivSlideIcon"
         android:layout_width="140dp"
         android:layout_height="140dp"
         android:layout_marginTop="32dp"
         android:layout_marginBottom="40dp"
-        android:scaleType="fitCenter"/>
+        android:scaleType="fitCenter"
+        android:importantForAccessibility="no"/>
 
-    <!-- Title -->
     <TextView
         android:id="@+id/tvSlideTitle"
         android:layout_width="wrap_content"
@@ -63,9 +67,9 @@
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="#185FA5"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp"
+        android:accessibilityHeading="true"/>
 
-    <!-- Description -->
     <TextView
         android:id="@+id/tvSlideDescription"
         android:layout_width="match_parent"
@@ -77,21 +81,21 @@
         android:lineSpacingExtra="4dp"
         android:layout_marginBottom="48dp"/>
 
-    <!-- Spacer -->
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:importantForAccessibility="no"/>
 
-    <!-- Dots -->
     <LinearLayout
         android:id="@+id/dotsContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginBottom="24dp"
+        android:importantForAccessibility="yes"
+        android:contentDescription="Δείκτης προόδου σελίδων"/>
 
-    <!-- Next Button -->
     <Button
         android:id="@+id/btnNext"
         android:layout_width="240dp"
