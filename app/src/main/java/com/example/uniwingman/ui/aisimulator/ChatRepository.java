@@ -68,9 +68,7 @@ public class ChatRepository {
         loadBasicInfo();
     }
 
-    // ─────────────────────────────────────────────
     // CREDENTIALS & INIT
-    // ─────────────────────────────────────────────
 
     private void loadCredentials() {
         try {
@@ -96,9 +94,7 @@ public class ChatRepository {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // OFFLINE (BASIC) MODE — UNCHANGED
-    // ─────────────────────────────────────────────
+    // OFFLINE (BASIC) MODE
 
     private String normalize(String text) {
         if (text == null) return "";
@@ -192,11 +188,11 @@ public class ChatRepository {
 
                 if (q.contains(root)) {
                     if (foundSpecific) sb.append("\n\n---\n\n");
-                    sb.append("👤 **").append(name).append("**\n")
-                            .append("🎓 ").append(p.get("role").getAsString()).append("\n")
-                            .append("📍 ").append(p.get("office").getAsString()).append("\n")
-                            .append("✉️ ").append(p.get("email").getAsString()).append("\n")
-                            .append("🕒 ").append(p.get("hours").getAsString());
+                            sb.append("Καθηγητής: ").append(name).append(". ")
+                            .append("Τίτλος ").append(p.get("role").getAsString()).append("\n")
+                            .append("Γραφείο ").append(p.get("office").getAsString()).append("\n")
+                            .append("Εmail ").append(p.get("email").getAsString()).append("\n")
+                            .append("ώρες Γραφείου ").append(p.get("hours").getAsString());
                     foundSpecific = true;
                 }
             }

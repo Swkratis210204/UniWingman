@@ -61,22 +61,34 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ChatMessage msg = messages.get(position);
 
         if (holder instanceof ChatViewHolder) {
-            ((ChatViewHolder) holder).textView.setText(msg.getText());
+            ChatViewHolder userHolder = (ChatViewHolder) holder;
+            userHolder.textView.setText(msg.getText());
+            // Accessibility: Προσδιορισμός αποστολέα
+            userHolder.itemView.setContentDescription("Εσείς είπατε: " + msg.getText());
 
         } else if (holder instanceof AiViewHolder) {
             AiViewHolder aiHolder = (AiViewHolder) holder;
             aiHolder.textView.setText(msg.getText());
 
-            // Show response time for online mode
+            String timeInfo = "";
             if (msg.hasResponseTime()) {
-                String timeStr = String.format("⚡ %.1fδ.", msg.getResponseTimeMs() / 1000.0);                aiHolder.tvTime.setText(timeStr);
+                double seconds = msg.getResponseTimeMs() / 1000.0;
+                String timeStr = String.format("⚡ %.1fδ.", seconds);
+                aiHolder.tvTime.setText(timeStr);
                 aiHolder.tvTime.setVisibility(View.VISIBLE);
+                timeInfo = " . Χρόνος απόκρισης: " + String.format("%.1f", seconds) + " δευτερόλεπτα.";
             } else {
                 aiHolder.tvTime.setVisibility(View.GONE);
             }
 
+            // Accessibility: Προσδιορισμός AI και χρόνου
+            aiHolder.itemView.setContentDescription("Ο UniWingman απάντησε: " + msg.getText() + timeInfo);
+
         } else if (holder instanceof LoadingViewHolder) {
-            ((LoadingViewHolder) holder).startAnimation();
+            LoadingViewHolder loadHolder = (LoadingViewHolder) holder;
+            loadHolder.startAnimation();
+            // Accessibility: Ενημέρωση ότι το AI επεξεργάζεται
+            loadHolder.itemView.setContentDescription("Ο UniWingman προετοιμάζει την απάντηση...");
         }
     }
 
@@ -98,6 +110,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ChatViewHolder(View itemView) {
             super(itemView);
             textView = itemView.findViewById(R.id.tvMessage);
+            // Κάνουμε focusable όλο το bubble για το TalkBack
+            itemView.setFocusable(true);
         }
     }
 
@@ -108,6 +122,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             super(itemView);
             textView = itemView.findViewById(R.id.tvMessage);
             tvTime = itemView.findViewById(R.id.tvResponseTime);
+            itemView.setFocusable(true);
         }
     }
 
@@ -120,26 +135,25 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             dot1 = itemView.findViewById(R.id.tvDot1);
             dot2 = itemView.findViewById(R.id.tvDot2);
             dot3 = itemView.findViewById(R.id.tvDot3);
+            itemView.setFocusable(true);
         }
 
         void startAnimation() {
             anim1 = ObjectAnimator.ofFloat(dot1, "alpha", 1f, 0.2f, 1f);
             anim1.setDuration(900);
             anim1.setRepeatCount(ObjectAnimator.INFINITE);
-            anim1.setStartDelay(0);
+            anim1.start();
 
             anim2 = ObjectAnimator.ofFloat(dot2, "alpha", 1f, 0.2f, 1f);
             anim2.setDuration(900);
             anim2.setRepeatCount(ObjectAnimator.INFINITE);
             anim2.setStartDelay(200);
+            anim2.start();
 
             anim3 = ObjectAnimator.ofFloat(dot3, "alpha", 1f, 0.2f, 1f);
             anim3.setDuration(900);
             anim3.setRepeatCount(ObjectAnimator.INFINITE);
             anim3.setStartDelay(400);
-
-            anim1.start();
-            anim2.start();
             anim3.start();
         }
 
@@ -150,8 +164,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    // ── DiffUtil ──
-
+    // ── DiffUtil (Παραμένει ίδιο) ──
     private static class ChatMessagesDiffCallback extends DiffUtil.Callback {
         private final List<ChatMessage> oldList;
         private final List<ChatMessage> newList;

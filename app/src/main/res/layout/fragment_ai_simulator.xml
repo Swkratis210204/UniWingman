@@ -4,17 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FAF9F6">
+    android:background="#FAF9F6"
+    android:importantForAccessibility="yes">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#185FA5"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="12dp">
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,7 +28,8 @@
                 android:text="UniWingman AI"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:accessibilityHeading="true"/>
 
             <ImageButton
                 android:id="@+id/btnClearChat"
@@ -39,7 +38,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_delete"
                 app:tint="#FFFFFF"
-                android:contentDescription="Clear conversation"/>
+                android:contentDescription="Εκκαθάριση συνομιλίας"/>
 
         </LinearLayout>
 
@@ -48,14 +47,17 @@
             android:layout_height="48dp"
             android:orientation="horizontal"
             android:background="@drawable/bg_model_toggle"
-            android:padding="3dp">
+            android:padding="3dp"
+            android:importantForAccessibility="yes"
+            android:contentDescription="Επιλογή μοντέλου τεχνητής νοημοσύνης">
 
             <Button
                 android:id="@+id/btnBasicModel"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Basic Model"
+                android:text="Βασικό"
+                android:contentDescription="Χρήση βασικού μοντέλου. Offline λειτουργία."
                 android:textSize="13sp"
                 android:textColor="#FFFFFF"
                 android:background="@drawable/bg_model_selected"
@@ -66,7 +68,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Thinking Model"
+                android:text="Σκέψη"
+                android:contentDescription="Χρήση μοντέλου βαθιάς σκέψης. Online λειτουργία."
                 android:textSize="13sp"
                 android:textColor="#B0C8E8"
                 android:background="@android:color/transparent"
@@ -92,7 +95,7 @@
         android:layout_weight="1"
         android:padding="12dp"
         android:clipToPadding="false"
-        android:scrollbarStyle="outsideOverlay"
+        android:accessibilityLiveRegion="polite"
         android:scrollbars="vertical"/>
 
     <LinearLayout
@@ -101,15 +104,17 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingStart="16dp"
-        android:paddingBottom="4dp"
-        android:visibility="gone">
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        android:accessibilityLiveRegion="assertive">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Ο UniWingman πληκτρολογεί..."
             android:textColor="#888780"
-            android:textSize="12sp"/>
+            android:textSize="12sp"
+            android:textStyle="italic"/>
 
     </LinearLayout>
 
@@ -127,14 +132,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Ρώτα κάτι..."
+            android:contentDescription="Πεδίο εισαγωγής μηνύματος"
             android:textSize="15sp"
             android:textColor="#2C2C2A"
-            android:textColorHint="#888780"
             android:background="@drawable/bg_input_field"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
+            android:padding="12dp"
             android:maxLines="4"
             android:minHeight="48dp"
             android:layout_marginEnd="8dp"
@@ -149,7 +151,7 @@
             android:background="@drawable/bg_send_button"
             android:src="@android:drawable/ic_menu_send"
             app:tint="#FFFFFF"
-            android:contentDescription="Send message"
+            android:contentDescription="Αποστολή μηνύματος"
             android:padding="10dp"/>
 
     </LinearLayout>

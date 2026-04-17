@@ -40,13 +40,12 @@ public class AISimulatorFragment extends Fragment {
         binding.rvMessages.setLayoutManager(layoutManager);
         binding.rvMessages.setAdapter(adapter);
 
-        // Listen για το αν ο χρήστης κάνει scroll up χειροκίνητα
         binding.rvMessages.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (dy < 0) { // Scroll up
+                if (dy < 0) {
                     isUserScrollingUp = true;
-                } else if (!recyclerView.canScrollVertically(1)) { // Έφτασε τέρμα κάτω
+                } else if (!recyclerView.canScrollVertically(1)) {
                     isUserScrollingUp = false;
                 }
             }
@@ -54,7 +53,6 @@ public class AISimulatorFragment extends Fragment {
 
         binding.btnSend.setOnClickListener(v -> handleSendMessage());
 
-        // ΔΙΟΡΘΩΣΗ ΓΙΑ ΤΟ ENTER
         binding.etMessage.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 handleSendMessage();
@@ -65,18 +63,21 @@ public class AISimulatorFragment extends Fragment {
 
         binding.btnBasicModel.setOnClickListener(v -> switchModel(false));
         binding.btnThinkingModel.setOnClickListener(v -> switchModel(true));
+
         binding.btnClearChat.setOnClickListener(v -> {
             isUserScrollingUp = false;
             viewModel.clearConversation();
+            announceForAccessibility("Η συνομιλία διαγράφηκε επιτυχώς");
         });
     }
 
     private void handleSendMessage() {
         String text = binding.etMessage.getText().toString().trim();
         if (!text.isEmpty()) {
-            isUserScrollingUp = false; // Επαναφορά για να δει την απάντηση
+            isUserScrollingUp = false;
             viewModel.sendMessage(text);
             binding.etMessage.setText("");
+            announceForAccessibility("Το μήνυμα εστάλη");
         }
     }
 
@@ -85,10 +86,20 @@ public class AISimulatorFragment extends Fragment {
             if (messages != null && adapter != null) {
                 adapter.setMessages(messages);
 
-                // Scroll στο τέλος ΜΟΝΟ αν ο χρήστης δεν διαβάζει τα παλιά (scroll up)
                 if (!messages.isEmpty() && !isUserScrollingUp) {
                     binding.rvMessages.post(() ->
                             binding.rvMessages.scrollToPosition(messages.size() - 1));
+                }
+            }
+        });
+
+        // Παρακολούθηση της κατάστασης "πληκτρολόγησης" για ανακοίνωση
+        viewModel.getIsTyping().observe(getViewLifecycleOwner(), isTyping -> {
+            if (isTyping != null) {
+                binding.layoutTyping.setVisibility(isTyping ? View.VISIBLE : View.GONE);
+                // Το XML έχει ήδη liveRegion="assertive", αλλά ενισχύουμε την προσβασιμότητα
+                if (isTyping) {
+                    announceForAccessibility("Ο UniWingman πληκτρολογεί");
                 }
             }
         });
@@ -96,18 +107,28 @@ public class AISimulatorFragment extends Fragment {
 
     private void switchModel(boolean isThinking) {
         viewModel.setModelMode(isThinking);
+        String modelMsg;
         if (isThinking) {
             binding.btnThinkingModel.setBackgroundResource(R.drawable.bg_model_selected);
             binding.btnBasicModel.setBackgroundResource(android.R.color.transparent);
             binding.btnThinkingModel.setTextColor(0xFFFFFFFF);
             binding.btnBasicModel.setTextColor(0xFFB0C8E8);
             binding.tvModelDescription.setText("Online · Βαθιά σκέψη");
+            modelMsg = "Ενεργοποιήθηκε το μοντέλο βαθιάς σκέψης. Απαιτείται σύνδεση στο διαδίκτυο.";
         } else {
             binding.btnBasicModel.setBackgroundResource(R.drawable.bg_model_selected);
             binding.btnThinkingModel.setBackgroundResource(android.R.color.transparent);
             binding.btnBasicModel.setTextColor(0xFFFFFFFF);
             binding.btnThinkingModel.setTextColor(0xFFB0C8E8);
             binding.tvModelDescription.setText("Offline · Γρήγορες απαντήσεις");
+            modelMsg = "Ενεργοποιήθηκε το βασικό μοντέλο. Λειτουργία χωρίς σύνδεση.";
+        }
+        announceForAccessibility(modelMsg);
+    }
+
+    private void announceForAccessibility(String message) {
+        if (getView() != null) {
+            getView().announceForAccessibility(message);
         }
     }
 

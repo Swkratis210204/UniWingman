@@ -10,15 +10,16 @@ import java.util.List;
 
 public class AISimulatorViewModel extends AndroidViewModel {
     private final MutableLiveData<List<ChatMessage>> mMessages = new MutableLiveData<>();
-    private final ChatRepository repository;
+    // Προσθήκη LiveData για την κατάσταση πληκτρολόγησης
+    private final MutableLiveData<Boolean> isTyping = new MutableLiveData<>(false);
 
+    private final ChatRepository repository;
     private final List<ChatMessage> basicMessages = new ArrayList<>();
     private final List<ChatMessage> thinkingMessages = new ArrayList<>();
-
     private boolean isThinkingMode = false;
 
-    public static final String BASIC_GREETING = "Basic Mode: Γρήγορες πληροφορίες για το ΟΠΑ.";
-    public static final String THINKING_GREETING = "Critical Thinking: Έτοιμος για ανάλυση.";
+    public static final String BASIC_GREETING = "Λειτουργία Βασικού Μοντέλου: Γρήγορες πληροφορίες για το ΟΠΑ.";
+    public static final String THINKING_GREETING = "Λειτουργία Βαθιάς Σκέψης: Έτοιμος για ανάλυση οδηγού σπουδών.";
 
     public AISimulatorViewModel(@NonNull Application application) {
         super(application);
@@ -34,6 +35,11 @@ public class AISimulatorViewModel extends AndroidViewModel {
         return mMessages;
     }
 
+    // Getter για το typing status που χρησιμοποιεί το Fragment
+    public LiveData<Boolean> getIsTyping() {
+        return isTyping;
+    }
+
     public void setModelMode(boolean isThinking) {
         isThinkingMode = isThinking;
         List<ChatMessage> current = isThinking ? thinkingMessages : basicMessages;
@@ -45,6 +51,10 @@ public class AISimulatorViewModel extends AndroidViewModel {
 
         List<ChatMessage> currentList = isThinkingMode ? thinkingMessages : basicMessages;
         currentList.add(new ChatMessage(text, true));
+
+        // Ενημέρωση ότι το AI ξεκίνησε να επεξεργάζεται (για το Accessibility Announcement)
+        isTyping.setValue(true);
+
         currentList.add(ChatMessage.loading());
         mMessages.setValue(new ArrayList<>(currentList));
 
@@ -56,12 +66,14 @@ public class AISimulatorViewModel extends AndroidViewModel {
             @Override
             public void onSuccess(String response) {
                 long elapsed = System.currentTimeMillis() - startTime;
+                isTyping.postValue(false); // Σταμάτησε να "πληκτρολογεί"
                 addAiResponse(response, sentAsThinking, sentAsThinking ? elapsed : -1);
             }
 
             @Override
             public void onError(String error) {
-                addAiResponse("Σφάλμα: " + error, sentAsThinking, -1);
+                isTyping.postValue(false);
+                addAiResponse("Σφάλμα επικοινωνίας: " + error, sentAsThinking, -1);
             }
         };
 
@@ -75,12 +87,10 @@ public class AISimulatorViewModel extends AndroidViewModel {
     private void addAiResponse(String text, boolean wasThinking, long responseTimeMs) {
         List<ChatMessage> targetList = wasThinking ? thinkingMessages : basicMessages;
 
-        // Αφαίρεσε το loading
         if (!targetList.isEmpty() && targetList.get(targetList.size() - 1).getType() == ChatMessage.Type.LOADING) {
             targetList.remove(targetList.size() - 1);
         }
 
-        // Πρόσθεσε την απάντηση
         ChatMessage response = wasThinking
                 ? ChatMessage.aiWithTime(text, responseTimeMs)
                 : new ChatMessage(text, false);
