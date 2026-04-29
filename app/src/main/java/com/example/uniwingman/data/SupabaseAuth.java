@@ -118,8 +118,25 @@ public class SupabaseAuth {
                 if (response.isSuccessful()) {
                     try {
                         JsonObject json = JsonParser.parseString(responseData).getAsJsonObject();
-                        String userId = json.getAsJsonObject("user").get("id").getAsString();
-                        callback.onSuccess(userId);
+                        JsonObject user = json.getAsJsonObject("user");
+                        String userId = user.get("id").getAsString();
+                        String email = user.get("email").getAsString();
+
+                        // Παίρνουμε το username από τα metadata του signup
+                        String username = email.split("@")[0]; // default
+                        if (user.has("user_metadata")) {
+                            JsonObject meta = user.getAsJsonObject("user_metadata");
+                            if (meta.has("username")) {
+                                username = meta.get("username").getAsString();
+                            }
+                        }
+
+                        // Περνάμε όλα μαζί ως JSON string
+                        JsonObject result = new JsonObject();
+                        result.addProperty("userId", userId);
+                        result.addProperty("email", email);
+                        result.addProperty("username", username);
+                        callback.onSuccess(result.toString());
                     } catch (Exception e) {
                         callback.onError("Σφάλμα ανάλυσης απάντησης.");
                     }
