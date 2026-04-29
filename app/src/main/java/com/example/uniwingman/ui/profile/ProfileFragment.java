@@ -22,15 +22,13 @@ import com.google.android.material.textfield.TextInputEditText;
 public class ProfileFragment extends Fragment {
 
     private static final String PREFS_NAME = "UniWingmanPrefs";
-    private static final String KEY_ECTS = "ects_done";
+    private static final String KEY_ECTS   = "ects_done";
 
     private TextView tvAvatar, tvUsername, tvEmail, tvAm;
+    private TextView tvEctsDone, tvEctsCount, tvSemester, tvGpa;
     private ProgressBar progressEcts;
-    private TextView tvEctsCount, tvEctsDone, tvEctsRemaining, tvEctsPercent;
     private TextInputEditText etEctsInput;
-    private MaterialButton btnUpdateEcts;
-    private TextView tvSemester, tvGpa;
-    private MaterialButton btnLogout;
+    private MaterialButton btnUpdateEcts, btnLogout;
 
     private SharedPreferences prefs;
 
@@ -41,20 +39,18 @@ public class ProfileFragment extends Fragment {
 
         prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        tvAvatar        = root.findViewById(R.id.tv_avatar);
-        tvUsername      = root.findViewById(R.id.tv_username);
-        tvEmail         = root.findViewById(R.id.tv_email);
-        tvAm            = root.findViewById(R.id.tv_am);
-        progressEcts    = root.findViewById(R.id.progress_ects);
-        tvEctsCount     = root.findViewById(R.id.tv_ects_count);
-        tvEctsDone      = root.findViewById(R.id.tv_ects_done);
-        tvEctsRemaining = root.findViewById(R.id.tv_ects_remaining);
-        tvEctsPercent   = root.findViewById(R.id.tv_ects_percent);
-        etEctsInput     = root.findViewById(R.id.et_ects_input);
-        btnUpdateEcts   = root.findViewById(R.id.btn_update_ects);
-        tvSemester      = root.findViewById(R.id.tv_semester);
-        tvGpa           = root.findViewById(R.id.tv_gpa);
-        btnLogout       = root.findViewById(R.id.btn_logout);
+        tvAvatar      = root.findViewById(R.id.tv_avatar);
+        tvUsername    = root.findViewById(R.id.tv_username);
+        tvEmail       = root.findViewById(R.id.tv_email);
+        tvAm          = root.findViewById(R.id.tv_am);
+        tvEctsDone    = root.findViewById(R.id.tv_ects_done);
+        tvEctsCount   = root.findViewById(R.id.tv_ects_count);
+        tvSemester    = root.findViewById(R.id.tv_semester);
+        tvGpa         = root.findViewById(R.id.tv_gpa);
+        progressEcts  = root.findViewById(R.id.progress_ects);
+        etEctsInput   = root.findViewById(R.id.et_ects_input);
+        btnUpdateEcts = root.findViewById(R.id.btn_update_ects);
+        btnLogout     = root.findViewById(R.id.btn_logout);
 
         loadUserInfo();
         loadEcts();
@@ -78,7 +74,7 @@ public class ProfileFragment extends Fragment {
             loadEcts();
             etEctsInput.setText("");
             Toast.makeText(requireContext(),
-                    "Τα ECTS ενημερώθηκαν!", Toast.LENGTH_SHORT).show();
+                    "ECTS ενημερώθηκαν!", Toast.LENGTH_SHORT).show();
         });
 
         btnLogout.setOnClickListener(v -> {
@@ -103,25 +99,16 @@ public class ProfileFragment extends Fragment {
         if (!username.isEmpty()) {
             tvAvatar.setText(String.valueOf(username.charAt(0)).toUpperCase());
         }
-
-        int ects     = prefs.getInt(KEY_ECTS, 0);
-        int semester = Math.min((ects / 30) + 1, 8);
-        tvSemester.setText(semester + "ο");
-        tvGpa.setText("—");
     }
 
     private void loadEcts() {
-        int done      = prefs.getInt(KEY_ECTS, 0);
-        int remaining = 240 - done;
-        int percent   = (int) ((done / 240f) * 100);
-
-        progressEcts.setProgress(done);
-        tvEctsCount.setText(done + " / 240");
-        tvEctsDone.setText(String.valueOf(done));
-        tvEctsRemaining.setText(String.valueOf(remaining));
-        tvEctsPercent.setText(percent + "%");
-
+        int done     = prefs.getInt(KEY_ECTS, 0);
         int semester = Math.min((done / 30) + 1, 8);
+        int percent  = (int) ((done / 240f) * 100);
+
+        tvEctsDone.setText(String.valueOf(done));
+        tvEctsCount.setText(done + " / 240  ·  " + percent + "%");
         tvSemester.setText(semester + "ο");
+        progressEcts.setProgress(done);
     }
 }
