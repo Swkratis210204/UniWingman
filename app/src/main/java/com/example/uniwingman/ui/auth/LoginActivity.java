@@ -98,6 +98,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(String userId) {
                 runOnUiThread(() -> {
                     announceForAccessibility("Σύνδεση επιτυχής.");
+                    getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
+                            .edit()
+                            .putString("email", email)
+                            .putString("username", email.split("@")[0])
+                            .apply();
                     Intent intent;
                     if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {
                         intent = new Intent(LoginActivity.this, OnboardingActivity.class);
