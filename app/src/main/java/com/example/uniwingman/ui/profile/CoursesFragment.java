@@ -3,11 +3,13 @@ package com.example.uniwingman.ui.profile;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,18 +38,20 @@ import okhttp3.Response;
 
 public class CoursesFragment extends Fragment {
 
-    private static final String TAG = "CoursesFragment";
     public static final String ARG_STATUS = "status";
 
-    private RecyclerView   recycler;
-    private ProgressBar    progressBar;
-    private TextView       tvEmpty;
-    private String         statusFilter;
-    private String         userId;
-    private int            userCurrentSemester;
-    private String         supabaseUrl;
-    private String         supabaseKey;
+    private RecyclerView     recycler;
+    private ProgressBar      progressBar;
+    private TextView         tvEmpty;
+    private EditText         etSearch;
+    private String           statusFilter;
+    private String           userId;
+    private int              userCurrentSemester;
+    private String           supabaseUrl;
+    private String           supabaseKey;
+    private List<CourseItem> allItems = new ArrayList<>();
     private final OkHttpClient client = new OkHttpClient();
+    private Spinner spinnerFilterYear, spinnerFilterSemester, spinnerFilterType;
 
     public static CoursesFragment newInstance(String status) {
         CoursesFragment f = new CoursesFragment();
@@ -89,21 +93,114 @@ public class CoursesFragment extends Fragment {
         recycler    = root.findViewById(R.id.recyclerCourses);
         progressBar = root.findViewById(R.id.progressBar);
         tvEmpty     = root.findViewById(R.id.tvEmpty);
+        etSearch    = root.findViewById(R.id.etSearch);
 
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        etSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterCourses(s.toString().trim().toLowerCase());
+            }
+            @Override public void afterTextChanged(android.text.Editable s) {}
+        });
+        spinnerFilterYear     = root.findViewById(R.id.spinnerFilterYear);
+        spinnerFilterSemester = root.findViewById(R.id.spinnerFilterSemester);
+        spinnerFilterType     = root.findViewById(R.id.spinnerFilterType);
+
+        spinnerFilterYear.setAdapter(new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Όλα Έτη", "1ο", "2ο", "3ο", "4ο"}));
+        spinnerFilterSemester.setAdapter(new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Όλα Εξ.", "Χειμερινό", "Εαρινό"}));
+        spinnerFilterType.setAdapter(new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Όλοι", "Υποχρεωτικό", "Επιλογής", "Επιλογής Κύκλου", "Ελεύθερης"}));
+
+        android.widget.AdapterView.OnItemSelectedListener spinnerListener =
+                new android.widget.AdapterView.OnItemSelectedListener() {
+                    @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                        applyFilters();
+                    }
+                    @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+                };
+        spinnerFilterYear.setOnItemSelectedListener(spinnerListener);
+        spinnerFilterSemester.setOnItemSelectedListener(spinnerListener);
+        spinnerFilterType.setOnItemSelectedListener(spinnerListener);
+
         return root;
+    }
+    private void applyFilters() {
+        String query   = etSearch.getText().toString().trim().toLowerCase();
+        String year    = spinnerFilterYear.getSelectedItem().toString();
+        String sem     = spinnerFilterSemester.getSelectedItem().toString();
+        String type    = spinnerFilterType.getSelectedItem().toString();
+
+        List<CourseItem> filtered = new ArrayList<>();
+        for (CourseItem item : allItems) {
+            // Text search
+            if (!query.isEmpty() &&
+                    !item.title.toLowerCase().contains(query) &&
+                    !item.code.toLowerCase().contains(query)) continue;
+
+            // Year filter (academicYear 1-4)
+            if (!year.equals("Όλα Έτη")) {
+                int y = Integer.parseInt(year.replace("ο", ""));
+                if (item.academicYear != y) continue;
+            }
+
+            // Semester filter
+            if (!sem.equals("Όλα Εξ.")) {
+                if (!sem.equals(item.takenSemester)) continue;
+            }
+
+            // Type filter — χρειάζεται το type στο CourseItem
+            // (θα το αγνοήσουμε προς το παρόν)
+
+            filtered.add(item);
+        }
+        updateAdapter(filtered);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (userId != null) {
+        if (userId != null && recycler != null) {
             fetchCourses();
-        } else {
-            tvEmpty.setVisibility(View.VISIBLE);
-            tvEmpty.setText("Δεν βρέθηκε χρήστης.");
         }
+    }
+
+    private void filterCourses(String query) {
+        applyFilters();
+    }
+
+    private void updateAdapter(List<CourseItem> items) {
+        if (items.isEmpty()) {
+            tvEmpty.setVisibility(View.VISIBLE);
+            recycler.setAdapter(null);
+            return;
+        }
+        tvEmpty.setVisibility(View.GONE);
+        CourseCardAdapter adapter = new CourseCardAdapter(
+                items, userCurrentSemester,
+                courseItem -> {
+                    Intent intent = new Intent(requireContext(), CourseDetailActivity.class);
+                    intent.putExtra(CourseDetailActivity.EXTRA_STUDENT_COURSE_ID, courseItem.studentCourseId);
+                    intent.putExtra(CourseDetailActivity.EXTRA_COURSE_ID, courseItem.courseId);
+                    intent.putExtra(CourseDetailActivity.EXTRA_TITLE, courseItem.title);
+                    intent.putExtra(CourseDetailActivity.EXTRA_CODE, courseItem.code);
+                    intent.putExtra(CourseDetailActivity.EXTRA_ECTS, courseItem.ects);
+                    intent.putExtra(CourseDetailActivity.EXTRA_SEMESTER, String.valueOf(courseItem.semester));
+                    intent.putExtra(CourseDetailActivity.EXTRA_DESCRIPTION, courseItem.description);
+                    intent.putExtra(CourseDetailActivity.EXTRA_STATUS, courseItem.status);
+                    intent.putExtra(CourseDetailActivity.EXTRA_GRADE, courseItem.grade != null ? courseItem.grade : -1f);
+                    intent.putExtra(CourseDetailActivity.EXTRA_ACADEMIC_YEAR, courseItem.academicYear);
+                    intent.putExtra(CourseDetailActivity.EXTRA_TAKEN_SEMESTER, courseItem.takenSemester);
+                    startActivity(intent);
+                }
+        );
+        recycler.setAdapter(adapter);
     }
 
     private void fetchCourses() {
@@ -177,30 +274,8 @@ public class CoursesFragment extends Fragment {
                             items.add(item);
                         }
 
-                        if (items.isEmpty()) {
-                            tvEmpty.setVisibility(View.VISIBLE);
-                        } else {
-                            tvEmpty.setVisibility(View.GONE);
-                            CourseCardAdapter adapter = new CourseCardAdapter(
-                                    items, userCurrentSemester,
-                                    courseItem -> {
-                                        Intent intent = new Intent(requireContext(), CourseDetailActivity.class);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_STUDENT_COURSE_ID, courseItem.studentCourseId);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_COURSE_ID, courseItem.courseId);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_TITLE, courseItem.title);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_CODE, courseItem.code);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_ECTS, courseItem.ects);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_SEMESTER, String.valueOf(courseItem.semester));
-                                        intent.putExtra(CourseDetailActivity.EXTRA_DESCRIPTION, courseItem.description);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_STATUS, courseItem.status);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_GRADE, courseItem.grade != null ? courseItem.grade : -1f);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_ACADEMIC_YEAR, courseItem.academicYear);
-                                        intent.putExtra(CourseDetailActivity.EXTRA_TAKEN_SEMESTER, courseItem.takenSemester);
-                                        startActivity(intent);
-                                    }
-                            );
-                            recycler.setAdapter(adapter);
-                        }
+                        allItems = items;
+                        updateAdapter(allItems);
 
                     } catch (Exception e) {
                         tvEmpty.setVisibility(View.VISIBLE);

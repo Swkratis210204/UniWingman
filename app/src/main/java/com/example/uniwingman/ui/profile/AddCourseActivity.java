@@ -158,12 +158,16 @@ public class AddCourseActivity extends AppCompatActivity {
                             item.code     = c.has("code") ? c.get("code").getAsString() : "";
                             item.title    = c.has("title") ? c.get("title").getAsString() : "";
                             item.ects     = c.has("ects") && !c.get("ects").isJsonNull() ? c.get("ects").getAsFloat() : 0f;
-                            item.semester = c.has("semester") && !c.get("semester").isJsonNull() ? c.get("semester").getAsString() : "—";
+                            item.semester = c.has("semester") && !c.get("semester").isJsonNull() ? c.get("semester").getAsString() : "0";
                             item.type     = c.has("Type") && !c.get("Type").isJsonNull() ? c.get("Type").getAsString() : "—";
+                            // Parse semester number
+                            String semText = item.semester;
+                            if (semText.contains(",")) semText = semText.split(",")[0].trim();
+                            try { item.semesterNum = Integer.parseInt(semText); }
+                            catch (NumberFormatException ignored) { item.semesterNum = 1; }
                             items.add(item);
                         }
 
-                        // Χρησιμοποιούμε showAddDialog αντί για addCourse απευθείας
                         AddCourseAdapter adapter = new AddCourseAdapter(items,
                                 courseItem -> showAddDialog(courseItem));
                         recycler.setAdapter(adapter);
@@ -185,8 +189,21 @@ public class AddCourseActivity extends AppCompatActivity {
         Spinner spinnerStatus = dialogView.findViewById(R.id.dialogSpinnerStatus);
         EditText etGrade      = dialogView.findViewById(R.id.dialogEtGrade);
 
-        spinnerStatus.setAdapter(new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, statuses));
+        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, statuses);
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStatus.setAdapter(statusAdapter);
+
+        // Αρχικά κρύψε το grade (default = in_progress)
+        etGrade.setVisibility(View.GONE);
+
+        spinnerStatus.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                etGrade.setVisibility(position == 0 ? View.GONE : View.VISIBLE);
+            }
+            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle(item.title.trim())
@@ -195,22 +212,43 @@ public class AddCourseActivity extends AppCompatActivity {
                     String status   = statusValues[spinnerStatus.getSelectedItemPosition()];
                     String gradeStr = etGrade.getText().toString().trim();
                     Float grade = null;
-                    if (!gradeStr.isEmpty()) {
-                        try { grade = Float.parseFloat(gradeStr); }
-                        catch (NumberFormatException ignored) {}
+
+                    if (!status.equals("in_progress") && !gradeStr.isEmpty()) {
+                        try {
+                            float g = Float.parseFloat(gradeStr);
+                            if (status.equals("passed") && g < 5) {
+                                Toast.makeText(this, "Περασμένο μάθημα πρέπει να έχει βαθμό ≥ 5", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (status.equals("failed") && g >= 5) {
+                                Toast.makeText(this, "Κομμένο μάθημα πρέπει να έχει βαθμό < 5", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            grade = g;
+                        } catch (NumberFormatException ignored) {}
                     }
-                    addCourse(item, status, grade);
+
+                    // Υπολόγισε αυτόματα academicYear και Semester από courses.semester
+                    int semNum       = item.semesterNum > 0 ? item.semesterNum : 1;
+                    int academicYear = (semNum + 1) / 2;
+                    String semester  = (semNum % 2 != 0) ? "Χειμερινό" : "Εαρινό";
+
+                    // Πρώτα check αν υπάρχει ήδη
+                    checkAndInsert(item, status, grade, academicYear, semester);
                 })
                 .setNegativeButton("Άκυρο", null)
                 .show();
     }
 
-    private void addCourse(AddCourseItem item, String status, Float grade) {
-        // Πρώτα έλεγξε αν υπάρχει ήδη
+    // Έλεγξε αν υπάρχει ήδη, μετά κάνε insert
+    private void checkAndInsert(AddCourseItem item, String status, Float grade,
+                                int academicYear, String semester) {
         String checkUrl = supabaseUrl + "/rest/v1/student_courses"
                 + "?user_id=eq." + userId
                 + "&course_id=eq." + item.id
                 + "&select=id,status&limit=1";
+
+        android.util.Log.d("AddCourse", "Checking: user_id=" + userId + " course_id=" + item.id);
 
         Request checkRequest = new Request.Builder()
                 .url(checkUrl)
@@ -226,6 +264,8 @@ public class AddCourseActivity extends AppCompatActivity {
 
             @Override public void onResponse(Call call, Response response) throws IOException {
                 String body = response.body() != null ? response.body().string() : "[]";
+                android.util.Log.d("AddCourse", "Check body: " + body);
+
                 runOnUiThread(() -> {
                     try {
                         JsonArray arr = JsonParser.parseString(body).getAsJsonArray();
@@ -241,23 +281,58 @@ public class AddCourseActivity extends AppCompatActivity {
                             }
                             return;
                         }
-                        // Δεν υπάρχει — προχώρα με insert
-                        doInsertCourse(item, status, grade);
+                        doInsertCourse(item, status, grade, academicYear, semester);
                     } catch (Exception e) {
-                        doInsertCourse(item, status, grade);
+                        doInsertCourse(item, status, grade, academicYear, semester);
                     }
                 });
             }
         });
     }
 
-    private void doInsertCourse(AddCourseItem item, String status, Float grade) {
+    private void doInsertCourse(AddCourseItem item, String status, Float grade,
+                                int academicYear, String semester) {
         JsonObject body = new JsonObject();
         body.addProperty("user_id", userId);
         body.addProperty("course_id", item.id);
         body.addProperty("status", status);
+        body.addProperty("academic_year", academicYear);
+        body.addProperty("Semester", semester);
         if (grade != null) body.addProperty("grade", grade);
-        // ... υπόλοιπο ίδιο
+
+        android.util.Log.d("AddCourse", "Inserting: " + body.toString());
+
+        String url = supabaseUrl + "/rest/v1/student_courses";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", supabaseKey)
+                .addHeader("Authorization", "Bearer " + supabaseKey)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Prefer", "return=minimal")
+                .post(RequestBody.create(body.toString(), MediaType.get("application/json")))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> Toast.makeText(AddCourseActivity.this,
+                        "Σφάλμα: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+            @Override public void onResponse(Call call, Response response) throws IOException {
+                String respBody = response.body() != null ? response.body().string() : "";
+                android.util.Log.d("AddCourse", "Insert response: " + response.code() + " " + respBody);
+                runOnUiThread(() -> {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(AddCourseActivity.this,
+                                "Προστέθηκε: " + item.title.trim(), Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_OK);
+                    } else {
+                        Toast.makeText(AddCourseActivity.this,
+                                "Σφάλμα (" + response.code() + "): " + respBody, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
     }
 
     private List<String> getSemesterNumbers(String year, String semType) {
@@ -272,8 +347,8 @@ public class AddCourseActivity extends AppCompatActivity {
 
         if (baseYear == 0) {
             for (int y = 1; y <= 4; y++) {
-                if (semType.equals("Χειμερινό"))      result.add(String.valueOf((y - 1) * 2 + 1));
-                else if (semType.equals("Εαρινό"))    result.add(String.valueOf(y * 2));
+                if (semType.equals("Χειμερινό"))   result.add(String.valueOf((y - 1) * 2 + 1));
+                else if (semType.equals("Εαρινό")) result.add(String.valueOf(y * 2));
             }
         } else {
             int winterSem = (baseYear - 1) * 2 + 1;
@@ -293,5 +368,6 @@ public class AddCourseActivity extends AppCompatActivity {
     public static class AddCourseItem {
         public String id, code, title, semester, type;
         public float  ects;
+        public int    semesterNum; // parsed int version of semester
     }
 }
