@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -179,13 +178,17 @@ public class CoursesFragment extends Fragment {
                             item.description = course.has("description") && !course.get("description").isJsonNull()
                                     ? course.get("description").getAsString() : "";
 
+                            // Αποθηκεύουμε το rawSemester ΠΡΙΝ το split
                             String semText = course.has("semester") && !course.get("semester").isJsonNull()
                                     ? course.get("semester").getAsString() : "0";
+                            item.rawSemester = semText; // π.χ. "7,8" ή "6"
+
                             if (semText.contains(",")) semText = semText.split(",")[0].trim();
                             try { item.semester = Integer.parseInt(semText); }
                             catch (NumberFormatException ignored) { item.semester = 0; }
 
-                            Log.d(TAG, "Added course: " + item.title + " | status: " + item.status + " | semester: " + item.semester);
+                            Log.d(TAG, "Added course: " + item.title + " | status: " + item.status
+                                    + " | semester: " + item.semester + " | rawSemester: " + item.rawSemester);
                             items.add(item);
                         }
 
