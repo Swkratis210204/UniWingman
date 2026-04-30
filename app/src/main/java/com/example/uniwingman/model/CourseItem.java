@@ -27,7 +27,6 @@ public class CourseItem {
     public String getAvailability(int userCurrentSemester) {
         if (status.equals("passed")) return "Περασμένο ✓";
 
-        // Μαθήματα που προσφέρονται σε πολλά εξάμηνα (π.χ. "7,8")
         boolean isMultiSemester = rawSemester != null && rawSemester.contains(",");
 
         if (status.equals("in_progress")) {
@@ -36,16 +35,20 @@ public class CourseItem {
 
             int diff = semester - userCurrentSemester;
             if (diff < 0) {
-                // Χειμερινό (odd) → επόμενο εξάμηνο, Εαρινό (even) → Σεπτέμβριος
                 if (semester % 2 != 0) return "Σε εξέλιξη · Επόμενο εξάμηνο";
                 else                   return "Σε εξέλιξη · Σεπτέμβριος";
             }
             return "Σε εξέλιξη";
         }
 
+        // failed ή άλλο status
         if (semester <= 0) return "";
         int diff = semester - userCurrentSemester;
-        if (diff <= 0)  return "Διαθέσιμο τώρα";
+        if (diff < 0) {
+            if (semester % 2 != 0) return "Διαθέσιμο επόμενο εξάμηνο";
+            else                   return "Διαθέσιμο Σεπτέμβριο";
+        }
+        if (diff == 0)  return "Διαθέσιμο τώρα";
         if (diff == 1)  return "Διαθέσιμο επόμενο εξάμηνο";
         return "Διαθέσιμο σε " + diff + " εξάμηνα";
     }

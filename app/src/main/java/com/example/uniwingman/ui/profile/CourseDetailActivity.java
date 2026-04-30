@@ -2,11 +2,9 @@ package com.example.uniwingman.ui.profile;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,11 +48,10 @@ public class CourseDetailActivity extends AppCompatActivity {
     private String supabaseKey;
     private final OkHttpClient client = new OkHttpClient();
 
-    // Views
     private TextView tvTitle, tvCode, tvEcts, tvSemester, tvDescription;
     private TextView tvProfessors, tvSchedule, tvExams;
     private EditText etGrade;
-    private Spinner  spinnerStatus, spinnerAcademicYear, spinnerTakenSemester;
+    private Spinner  spinnerStatus, spinnerAcademicYear;
     private Button   btnSave;
 
     @Override
@@ -62,7 +59,6 @@ public class CourseDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course_detail);
 
-        // Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -71,12 +67,10 @@ public class CourseDetailActivity extends AppCompatActivity {
         }
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        // Supabase credentials
         Dotenv dotenv = Dotenv.configure().directory("./assets").filename("env").load();
         supabaseUrl = dotenv.get("DB_URL");
         supabaseKey = dotenv.get("DB_PASSWORD");
 
-        // Extras
         studentCourseId = getIntent().getStringExtra(EXTRA_STUDENT_COURSE_ID);
         courseId        = getIntent().getStringExtra(EXTRA_COURSE_ID);
         String title        = getIntent().getStringExtra(EXTRA_TITLE);
@@ -87,9 +81,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         String status       = getIntent().getStringExtra(EXTRA_STATUS);
         float  grade        = getIntent().getFloatExtra(EXTRA_GRADE, -1f);
         int    academicYear = getIntent().getIntExtra(EXTRA_ACADEMIC_YEAR, 0);
-        String takenSem     = getIntent().getStringExtra(EXTRA_TAKEN_SEMESTER);
 
-        // Bind views
         tvTitle       = findViewById(R.id.tvDetailTitle);
         tvCode        = findViewById(R.id.tvDetailCode);
         tvEcts        = findViewById(R.id.tvDetailEcts);
@@ -99,12 +91,10 @@ public class CourseDetailActivity extends AppCompatActivity {
         tvSchedule    = findViewById(R.id.tvDetailSchedule);
         tvExams       = findViewById(R.id.tvDetailExams);
         etGrade       = findViewById(R.id.etGrade);
-        spinnerStatus         = findViewById(R.id.spinnerStatus);
-        spinnerAcademicYear   = findViewById(R.id.spinnerAcademicYear);
-        spinnerTakenSemester  = findViewById(R.id.spinnerTakenSemester);
+        spinnerStatus       = findViewById(R.id.spinnerStatus);
+        spinnerAcademicYear = findViewById(R.id.spinnerAcademicYear);
         btnSave       = findViewById(R.id.btnSave);
 
-        // Populate static info
         tvTitle.setText(title != null ? title.trim() : "—");
         tvCode.setText("Κωδικός: " + (code != null ? code : "—"));
         tvEcts.setText((int) ects + " ECTS");
@@ -112,7 +102,6 @@ public class CourseDetailActivity extends AppCompatActivity {
         tvDescription.setText(description != null && !description.isEmpty()
                 ? description.trim() : "Αναμένονται πληροφορίες.");
 
-        // Spinners
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item,
                 new String[]{"passed", "in_progress", "failed"});
@@ -132,23 +121,13 @@ public class CourseDetailActivity extends AppCompatActivity {
             spinnerAcademicYear.setSelection(academicYear - 1);
         }
 
-        ArrayAdapter<String> semAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item,
-                new String[]{"Χειμερινό", "Εαρινό"});
-        semAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerTakenSemester.setAdapter(semAdapter);
-        if ("Εαρινό".equals(takenSem)) spinnerTakenSemester.setSelection(1);
-
-        // Grade
         if (grade >= 0) etGrade.setText(grade == (int) grade
                 ? String.valueOf((int) grade) : String.valueOf(grade));
 
-        // Fetch professors, schedule, exams
         fetchProfessors();
         fetchSchedule();
         fetchExams();
 
-        // Save button
         btnSave.setOnClickListener(v -> saveChanges());
     }
 
@@ -171,10 +150,10 @@ public class CourseDetailActivity extends AppCompatActivity {
                     JsonObject cp = arr.get(i).getAsJsonObject();
                     if (!cp.has("professors") || cp.get("professors").isJsonNull()) continue;
                     JsonObject p = cp.getAsJsonObject("professors");
-                    String name  = p.has("name") ? p.get("name").getAsString() : "—";
-                    String email = p.has("email") && !p.get("email").isJsonNull() ? p.get("email").getAsString() : "—";
-                    String office= p.has("office") && !p.get("office").isJsonNull() ? p.get("office").getAsString() : "—";
-                    String phone = p.has("phone") && !p.get("phone").isJsonNull() ? p.get("phone").getAsString() : "—";
+                    String name   = p.has("name") ? p.get("name").getAsString() : "—";
+                    String email  = p.has("email") && !p.get("email").isJsonNull() ? p.get("email").getAsString() : "—";
+                    String office = p.has("office") && !p.get("office").isJsonNull() ? p.get("office").getAsString() : "—";
+                    String phone  = p.has("phone") && !p.get("phone").isJsonNull() ? p.get("phone").getAsString() : "—";
                     sb.append("• ").append(name).append("\n");
                     sb.append("  Email: ").append(email).append("\n");
                     sb.append("  Γραφείο: ").append(office).append("\n");
@@ -257,15 +236,13 @@ public class CourseDetailActivity extends AppCompatActivity {
     }
 
     private void saveChanges() {
-        String gradeStr    = etGrade.getText().toString().trim();
-        String newStatus   = spinnerStatus.getSelectedItem().toString();
-        String newYear     = spinnerAcademicYear.getSelectedItem().toString();
-        String newSemester = spinnerTakenSemester.getSelectedItem().toString();
+        String gradeStr  = etGrade.getText().toString().trim();
+        String newStatus = spinnerStatus.getSelectedItem().toString();
+        String newYear   = spinnerAcademicYear.getSelectedItem().toString();
 
         JsonObject body = new JsonObject();
         body.addProperty("status", newStatus);
         body.addProperty("academic_year", Integer.parseInt(newYear));
-        body.addProperty("Semester", newSemester);
 
         if (!gradeStr.isEmpty()) {
             try {
@@ -324,9 +301,7 @@ public class CourseDetailActivity extends AppCompatActivity {
                 .get().build();
 
         client.newCall(request).enqueue(new Callback() {
-            @Override public void onFailure(Call call, IOException e) {
-                callback.onBody("[]");
-            }
+            @Override public void onFailure(Call call, IOException e) { callback.onBody("[]"); }
             @Override public void onResponse(Call call, Response response) throws IOException {
                 String body = response.body() != null ? response.body().string() : "[]";
                 callback.onBody(body);
