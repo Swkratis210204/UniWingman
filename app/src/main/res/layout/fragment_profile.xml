@@ -1,540 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/profile_dark_bg">
+    android:background="#F5F6FA"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
 
-        <!-- ── DARK HEADER ── -->
+        <!-- HEADER -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp"
-            android:background="@color/profile_dark_bg">
+            android:gravity="center"
+            android:paddingTop="32dp"
+            android:paddingBottom="24dp"
+            android:background="#FFFFFF">
 
-            <!-- Avatar + Info -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="20dp">
+            <FrameLayout
+                android:layout_width="88dp"
+                android:layout_height="88dp">
 
                 <TextView
-                    android:id="@+id/tv_avatar"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:id="@+id/tvAvatar"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
                     android:gravity="center"
-                    android:textSize="26sp"
-                    android:textColor="@color/nav_selected"
+                    android:textSize="28sp"
+                    android:textColor="#FFFFFF"
                     android:textStyle="bold"
-                    android:background="@drawable/avatar_circle_bg"
-                    android:text="?" />
+                    android:background="@drawable/bg_avatar_circle"
+                    android:text=""
+                    android:contentDescription="Avatar χρήστη" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="14dp">
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="bottom|end"
+                    android:src="@drawable/ic_camera"
+                    android:background="@drawable/bg_camera_circle"
+                    android:padding="4dp"
+                    android:contentDescription="Αλλαγή φωτογραφίας" />
+            </FrameLayout>
 
-                    <TextView
-                        android:id="@+id/tv_username"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Φόρτωση..."
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_email"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="email@aueb.gr"
-                        android:textColor="@color/profile_text_muted"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-
-                    <TextView
-                        android:id="@+id/tv_am"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ΑΜ: —"
-                        android:textColor="@color/profile_text_muted"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Stats Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Φοιτητής"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A2E" />
+
+            <TextView
+                android:id="@+id/tvEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textSize="14sp"
+                android:textColor="#888888" />
+
+            <!-- Stats row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:gravity="center">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/tv_ects_done"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/white"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ECTS"
-                        android:textColor="@color/profile_text_muted"
-                        android:textSize="11sp" />
+                <LinearLayout android:layout_width="80dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
+                    <TextView android:id="@+id/tvGpa" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textSize="22sp" android:textStyle="bold" android:textColor="#3D5AFE" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Μ.Ο." android:textSize="12sp" android:textColor="#888888" />
                 </LinearLayout>
 
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="32dp"
-                    android:background="#2D333B"
-                    android:layout_gravity="center_vertical" />
+                <View android:layout_width="1dp" android:layout_height="32dp" android:background="#E0E0E0" android:layout_marginHorizontal="4dp" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/tv_semester"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1ο"
-                        android:textColor="@color/white"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Εξάμηνο"
-                        android:textColor="@color/profile_text_muted"
-                        android:textSize="11sp" />
+                <LinearLayout android:layout_width="80dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
+                    <TextView android:id="@+id/tvStreak" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="22sp" android:textStyle="bold" android:textColor="#FF6D00" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Streak" android:textSize="12sp" android:textColor="#888888" />
                 </LinearLayout>
 
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="32dp"
-                    android:background="#2D333B"
-                    android:layout_gravity="center_vertical" />
+                <View android:layout_width="1dp" android:layout_height="32dp" android:background="#E0E0E0" android:layout_marginHorizontal="4dp" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/tv_gpa"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textColor="@color/profile_green"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Μ.Ο."
-                        android:textColor="@color/profile_text_muted"
-                        android:textSize="11sp" />
+                <LinearLayout android:layout_width="80dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
+                    <TextView android:id="@+id/tvTotalCourses" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="22sp" android:textStyle="bold" android:textColor="#7C4DFF" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Μαθήματα" android:textSize="12sp" android:textColor="#888888" />
                 </LinearLayout>
-            </LinearLayout>
-
-            <!-- ECTS Progress -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp"
-                android:background="@drawable/dark_card_bg"
-                android:layout_marginBottom="12dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Πρόοδος ECTS"
-                        android:textColor="@color/profile_text_muted"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tv_ects_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0 / 240"
-                        android:textColor="@color/profile_text_muted"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <ProgressBar
-                    android:id="@+id/progress_ects"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="6dp"
-                    android:max="240"
-                    android:progress="0"
-                    android:progressTint="@color/nav_selected"
-                    android:progressBackgroundTint="#2D333B"
-                    android:layout_marginBottom="8dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="Εισάγετε ECTS"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                        app:hintTextColor="@color/profile_text_muted"
-                        app:boxStrokeColor="#2D333B">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_ects_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:maxLength="3"
-                            android:textColor="@color/white" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_update_ects"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="Ενημέρωση"
-                        android:textSize="12sp"
-                        app:backgroundTint="@color/nav_selected" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Action Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="4dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_edit_profile"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="Επεξεργασία"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    app:backgroundTint="@color/nav_selected"
-                    app:cornerRadius="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_options"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="···"
-                    android:textSize="16sp"
-                    app:backgroundTint="#21262D"
-                    app:strokeColor="#2D333B"
-                    app:strokeWidth="1dp"
-                    app:cornerRadius="8dp" />
-
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ── WHITE BODY ── -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/white"
-            android:paddingTop="20dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="24dp">
+        <View android:layout_width="match_parent" android:layout_height="12dp" android:background="#F5F6FA" />
 
-            <!-- Upcoming Deadlines -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Επόμενες Προθεσμίες"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#888888"
-                android:letterSpacing="0.08"
-                android:layout_marginBottom="12dp" />
+        <!-- ΜΑΘΗΜΑΤΑ -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#FFFFFF">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="24dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp">
-
-                    <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
-                        android:background="@drawable/dot_red"
-                        android:layout_marginEnd="12dp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Deadline ΑΑΥ — HCI Project"
-                        android:textSize="13sp"
-                        android:textColor="#1A1A1A" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="24 Μαϊ"
-                        android:textSize="12sp"
-                        android:textColor="#888888" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:background="#EEEEEE" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp">
-
-                    <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
-                        android:background="@drawable/dot_orange"
-                        android:layout_marginEnd="12dp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Έναρξη Εξεταστικής"
-                        android:textSize="13sp"
-                        android:textColor="#1A1A1A" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="10 Ιουν"
-                        android:textSize="12sp"
-                        android:textColor="#888888" />
-                </LinearLayout>
+            <!-- Σε Εξέλιξη -->
+            <LinearLayout android:id="@+id/rowDeclared" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Μαθήματα σε εξέλιξη">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_menu_book" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Σε Εξέλιξη" android:textSize="15sp" android:textColor="#1A1A2E" />
+                <TextView android:id="@+id/badgeDeclared" android:layout_width="26dp" android:layout_height="26dp" android:gravity="center" android:text="0" android:textSize="12sp" android:textColor="#FFFFFF" android:background="@drawable/bg_badge_blue" android:layout_marginEnd="8dp" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
             </LinearLayout>
 
-            <!-- Graduation Plan -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Graduation Plan"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#888888"
-                android:letterSpacing="0.08"
-                android:layout_marginBottom="12dp" />
+            <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#F0F0F0" android:layout_marginStart="58dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="12dp">
+            <!-- Περασμένα -->
+            <LinearLayout android:id="@+id/rowPassed" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Περασμένα Μαθήματα">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_medal" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Περασμένα Μαθήματα" android:textSize="15sp" android:textColor="#1A1A2E" />
+                <TextView android:id="@+id/badgePassed" android:layout_width="26dp" android:layout_height="26dp" android:gravity="center" android:text="0" android:textSize="12sp" android:textColor="#FFFFFF" android:background="@drawable/bg_badge_dark" android:layout_marginEnd="8dp" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
+            </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp">
+            <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#F0F0F0" android:layout_marginStart="58dp" />
 
-                    <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
-                        android:background="@drawable/dot_red"
-                        android:layout_marginEnd="12dp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Αλγόριθμοι και Πολυπλοκότητα"
-                        android:textSize="13sp"
-                        android:textColor="#1A1A1A" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Εκκρεμεί"
-                        android:textSize="11sp"
-                        android:textColor="#E24B4A"
-                        android:background="@drawable/badge_red_bg"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp" />
-                </LinearLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#EEEEEE" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp">
-
-                    <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
-                        android:background="@drawable/dot_red"
-                        android:layout_marginEnd="12dp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Βάσεις Δεδομένων ΙΙ"
-                        android:textSize="13sp"
-                        android:textColor="#1A1A1A" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Εκκρεμεί"
-                        android:textSize="11sp"
-                        android:textColor="#E24B4A"
-                        android:background="@drawable/badge_red_bg"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp" />
-                </LinearLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#EEEEEE" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp">
-
-                    <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
-                        android:background="@drawable/dot_red"
-                        android:layout_marginEnd="12dp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Δίκτυα Υπολογιστών"
-                        android:textSize="13sp"
-                        android:textColor="#1A1A1A" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Εκκρεμεί"
-                        android:textSize="11sp"
-                        android:textColor="#E24B4A"
-                        android:background="@drawable/badge_red_bg"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp" />
-                </LinearLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#EEEEEE" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp">
-
-                    <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
-                        android:background="@drawable/dot_orange"
-                        android:layout_marginEnd="12dp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Πτυχιακή Εργασία"
-                        android:textSize="13sp"
-                        android:textColor="#1A1A1A" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Σε εξέλιξη"
-                        android:textSize="11sp"
-                        android:textColor="#E65100"
-                        android:background="@drawable/badge_orange_bg"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp" />
-                </LinearLayout>
+            <!-- Κομμένα -->
+            <LinearLayout android:id="@+id/rowFailed" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Κομμένα Μαθήματα">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_book_closed" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Κομμένα Μαθήματα" android:textSize="15sp" android:textColor="#1A1A2E" />
+                <TextView android:id="@+id/badgeFailed" android:layout_width="26dp" android:layout_height="26dp" android:gravity="center" android:text="0" android:textSize="12sp" android:textColor="#FFFFFF" android:background="@drawable/bg_badge_blue" android:layout_marginEnd="8dp" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
             </LinearLayout>
         </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="12dp" android:background="#F5F6FA" />
+
+        <!-- SETTINGS -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#FFFFFF">
+
+            <!-- Ρυθμίσεις -->
+            <LinearLayout android:id="@+id/rowSettings" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Ρυθμίσεις">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_settings" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Ρυθμίσεις" android:textSize="15sp" android:textColor="#1A1A2E" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#F0F0F0" android:layout_marginStart="58dp" />
+
+            <!-- Ειδοποιήσεις -->
+            <LinearLayout android:id="@+id/rowNotifications" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Ειδοποιήσεις">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_notifications" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Ειδοποιήσεις" android:textSize="15sp" android:textColor="#1A1A2E" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#F0F0F0" android:layout_marginStart="58dp" />
+
+            <!-- Επεξεργασία Προφίλ -->
+            <LinearLayout android:id="@+id/rowEditProfile" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Επεξεργασία Προφίλ">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_edit" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Επεξεργασία Προφίλ" android:textSize="15sp" android:textColor="#1A1A2E" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#F0F0F0" android:layout_marginStart="58dp" />
+
+            <!-- Βοήθεια -->
+            <LinearLayout android:id="@+id/rowHelp" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Βοήθεια και Υποστήριξη">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_help" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Βοήθεια &amp; Υποστήριξη" android:textSize="15sp" android:textColor="#1A1A2E" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="12dp" android:background="#F5F6FA" />
+
+        <!-- ΑΠΟΣΥΝΔΕΣΗ -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#FFFFFF">
+
+            <LinearLayout android:id="@+id/rowLogout" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Αποσύνδεση">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_logout" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Αποσύνδεση" android:textSize="15sp" android:textColor="#F44336" android:textStyle="bold" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</ScrollView>
