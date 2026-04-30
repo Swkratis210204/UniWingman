@@ -134,6 +134,13 @@
         <!-- SETTINGS -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#FFFFFF">
 
+            <!-- Προσθήκη Μαθήματος -->
+            <LinearLayout android:id="@+id/rowAddCourse" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Προσθήκη Μαθήματος">
+                <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/baseline_add_24" android:importantForAccessibility="no" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Προσθήκη Μαθήματος" android:textSize="15sp" android:textColor="#1A1A2E" />
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_chevron_right" android:importantForAccessibility="no" />
+            </LinearLayout>
+
             <!-- Ρυθμίσεις -->
             <LinearLayout android:id="@+id/rowSettings" android:layout_width="match_parent" android:layout_height="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="20dp" android:focusable="true" android:clickable="true" android:background="?attr/selectableItemBackground" android:contentDescription="Ρυθμίσεις">
                 <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_settings" android:importantForAccessibility="no" />

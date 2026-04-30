@@ -7,8 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import android.content.Intent;
-//import com.example.uniwingman.ui.profile.CoursesActivity;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -36,7 +34,7 @@ public class ProfileFragment extends Fragment {
         String userId   = prefs.getString("userId", null);
 
         setupHeader(username, email);
-        setupMenuRows();
+        setupMenuRows(userId);
         setupLogout(prefs);
 
         if (userId != null) {
@@ -69,17 +67,29 @@ public class ProfileFragment extends Fragment {
         startActivity(intent);
     }
 
-    private void setupMenuRows() {
+    private void navigateToAddCourse(String userId) {
+        Intent intent = new Intent(requireActivity(), AddCourseActivity.class);
+        intent.putExtra(AddCourseActivity.EXTRA_USER_ID, userId);
+        startActivity(intent);
+    }
+
+    private void setupMenuRows(String userId) {
         binding.rowDeclared.setOnClickListener(v -> navigateToCourses("in_progress"));
         binding.rowPassed.setOnClickListener(v   -> navigateToCourses("passed"));
         binding.rowFailed.setOnClickListener(v   -> navigateToCourses("failed"));
+
+        binding.rowEditProfile.setOnClickListener(v ->
+                Toast.makeText(getContext(), "Επεξεργασία Προφίλ — Σύντομα!", Toast.LENGTH_SHORT).show());
+
+        binding.rowAddCourse.setOnClickListener(v -> {
+            if (userId != null) navigateToAddCourse(userId);
+            else Toast.makeText(getContext(), "Δεν βρέθηκε χρήστης.", Toast.LENGTH_SHORT).show();
+        });
 
         binding.rowSettings.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Ρυθμίσεις — Σύντομα!", Toast.LENGTH_SHORT).show());
         binding.rowNotifications.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Ειδοποιήσεις — Σύντομα!", Toast.LENGTH_SHORT).show());
-        binding.rowEditProfile.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Επεξεργασία Προφίλ — Σύντομα!", Toast.LENGTH_SHORT).show());
         binding.rowHelp.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Βοήθεια & Υποστήριξη — Σύντομα!", Toast.LENGTH_SHORT).show());
     }
@@ -118,5 +128,15 @@ public class ProfileFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("UniWingmanPrefs", android.content.Context.MODE_PRIVATE);
+        String userId = prefs.getString("userId", null);
+        if (userId != null) {
+            viewModel.loadProfileStats(userId);
+        }
     }
 }

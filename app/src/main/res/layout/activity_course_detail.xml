@@ -290,20 +290,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp" />
 
-                <!-- Ακαδημαϊκό Έτος -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ακαδημαϊκό Έτος (1-4)"
-                    android:textSize="12sp"
-                    android:textColor="#888888"
-                    android:layout_marginBottom="4dp" />
-
-                <Spinner
-                    android:id="@+id/spinnerAcademicYear"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp" />
 
                 <Button
                     android:id="@+id/btnSave"
@@ -311,6 +297,14 @@
                     android:layout_height="wrap_content"
                     android:text="Αποθήκευση"
                     android:backgroundTint="#3D5AFE"
+                    android:textColor="#FFFFFF" />
+                <Button
+                    android:id="@+id/btnDelete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Διαγραφή Μαθήματος"
+                    android:backgroundTint="#F44336"
                     android:textColor="#FFFFFF" />
 
             </LinearLayout>

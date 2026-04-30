@@ -33,6 +33,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.profile.CourseDetailActivity" />
+        <activity android:name=".ui.profile.AddCourseActivity" />
         <activity android:name=".ui.profile.CoursesActivity" />
         <activity
             android:name=".MainActivity"

@@ -46,12 +46,13 @@ public class CourseDetailActivity extends AppCompatActivity {
     private String courseId;
     private String supabaseUrl;
     private String supabaseKey;
+    private Button btnDelete;
     private final OkHttpClient client = new OkHttpClient();
 
     private TextView tvTitle, tvCode, tvEcts, tvSemester, tvDescription;
     private TextView tvProfessors, tvSchedule, tvExams;
     private EditText etGrade;
-    private Spinner  spinnerStatus, spinnerAcademicYear;
+    private Spinner  spinnerStatus;
     private Button   btnSave;
 
     @Override
@@ -80,7 +81,6 @@ public class CourseDetailActivity extends AppCompatActivity {
         String description  = getIntent().getStringExtra(EXTRA_DESCRIPTION);
         String status       = getIntent().getStringExtra(EXTRA_STATUS);
         float  grade        = getIntent().getFloatExtra(EXTRA_GRADE, -1f);
-        int    academicYear = getIntent().getIntExtra(EXTRA_ACADEMIC_YEAR, 0);
 
         tvTitle       = findViewById(R.id.tvDetailTitle);
         tvCode        = findViewById(R.id.tvDetailCode);
@@ -92,8 +92,9 @@ public class CourseDetailActivity extends AppCompatActivity {
         tvExams       = findViewById(R.id.tvDetailExams);
         etGrade       = findViewById(R.id.etGrade);
         spinnerStatus       = findViewById(R.id.spinnerStatus);
-        spinnerAcademicYear = findViewById(R.id.spinnerAcademicYear);
         btnSave       = findViewById(R.id.btnSave);
+        btnDelete = findViewById(R.id.btnDelete);
+        btnDelete.setOnClickListener(v -> confirmDelete());
 
         tvTitle.setText(title != null ? title.trim() : "—");
         tvCode.setText("Κωδικός: " + (code != null ? code : "—"));
@@ -110,15 +111,6 @@ public class CourseDetailActivity extends AppCompatActivity {
         if (status != null) {
             int pos = statusAdapter.getPosition(status);
             if (pos >= 0) spinnerStatus.setSelection(pos);
-        }
-
-        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item,
-                new String[]{"1", "2", "3", "4"});
-        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerAcademicYear.setAdapter(yearAdapter);
-        if (academicYear > 0 && academicYear <= 4) {
-            spinnerAcademicYear.setSelection(academicYear - 1);
         }
 
         if (grade >= 0) etGrade.setText(grade == (int) grade
@@ -234,15 +226,54 @@ public class CourseDetailActivity extends AppCompatActivity {
             }
         });
     }
+    private void confirmDelete() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Διαγραφή Μαθήματος")
+                .setMessage("Είσαι σίγουρος ότι θέλεις να διαγράψεις αυτό το μάθημα;")
+                .setPositiveButton("Διαγραφή", (dialog, which) -> deleteCourse())
+                .setNegativeButton("Άκυρο", null)
+                .show();
+    }
+
+    private void deleteCourse() {
+        String url = supabaseUrl + "/rest/v1/student_courses?id=eq." + studentCourseId;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", supabaseKey)
+                .addHeader("Authorization", "Bearer " + supabaseKey)
+                .addHeader("Prefer", "return=minimal")
+                .delete()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> Toast.makeText(CourseDetailActivity.this,
+                        "Σφάλμα: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+            @Override public void onResponse(Call call, Response response) throws IOException {
+                if (response.body() != null) response.body().close();
+                runOnUiThread(() -> {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(CourseDetailActivity.this,
+                                "Το μάθημα διαγράφηκε.", Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_OK);
+                        finish();
+                    } else {
+                        Toast.makeText(CourseDetailActivity.this,
+                                "Σφάλμα διαγραφής (" + response.code() + ")", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
 
     private void saveChanges() {
         String gradeStr  = etGrade.getText().toString().trim();
         String newStatus = spinnerStatus.getSelectedItem().toString();
-        String newYear   = spinnerAcademicYear.getSelectedItem().toString();
 
         JsonObject body = new JsonObject();
         body.addProperty("status", newStatus);
-        body.addProperty("academic_year", Integer.parseInt(newYear));
 
         if (!gradeStr.isEmpty()) {
             try {

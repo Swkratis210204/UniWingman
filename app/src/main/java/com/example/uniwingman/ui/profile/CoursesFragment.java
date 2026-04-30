@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import com.example.uniwingman.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,19 +63,15 @@ public class CoursesFragment extends Fragment {
         if (getArguments() != null) {
             statusFilter = getArguments().getString(ARG_STATUS, "passed");
         }
-        Log.d(TAG, "statusFilter = " + statusFilter);
 
         Dotenv dotenv = Dotenv.configure().directory("./assets").filename("env").load();
         supabaseUrl = dotenv.get("DB_URL");
         supabaseKey = dotenv.get("DB_PASSWORD");
-        Log.d(TAG, "supabaseUrl = " + supabaseUrl);
 
         SharedPreferences prefs = requireActivity()
                 .getSharedPreferences("UniWingmanPrefs", android.content.Context.MODE_PRIVATE);
         userId              = prefs.getString("userId", null);
         userCurrentSemester = prefs.getInt("currentSemester", 8);
-        Log.d(TAG, "userId = " + userId);
-        Log.d(TAG, "userCurrentSemester = " + userCurrentSemester);
     }
 
     @Nullable
@@ -88,46 +83,49 @@ public class CoursesFragment extends Fragment {
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitle(getTitleForStatus(statusFilter));
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_24);        toolbar.setNavigationOnClickListener(v -> requireActivity().finish());
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_24);
+        toolbar.setNavigationOnClickListener(v -> requireActivity().finish());
+
         recycler    = root.findViewById(R.id.recyclerCourses);
         progressBar = root.findViewById(R.id.progressBar);
         tvEmpty     = root.findViewById(R.id.tvEmpty);
 
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         if (userId != null) {
             fetchCourses();
         } else {
-            Log.e(TAG, "userId is null — δεν γίνεται fetch");
             tvEmpty.setVisibility(View.VISIBLE);
             tvEmpty.setText("Δεν βρέθηκε χρήστης.");
         }
-
-        return root;
     }
 
     private void fetchCourses() {
         progressBar.setVisibility(View.VISIBLE);
+        tvEmpty.setVisibility(View.GONE);
 
         String url = supabaseUrl
                 + "/rest/v1/student_courses"
                 + "?user_id=eq." + userId
                 + "&status=eq." + statusFilter
                 + "&select=id,course_id,grade,status,academic_year,Semester,courses(id,code,title,ects,semester,description)";
-        Log.d(TAG, "Fetching URL: " + url);
 
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("apikey", supabaseKey)
                 .addHeader("Authorization", "Bearer " + supabaseKey)
                 .addHeader("Content-Type", "application/json")
-                .get()
-                .build();
+                .get().build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e(TAG, "Network failure: " + e.getMessage());
                 requireActivity().runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
                     tvEmpty.setVisibility(View.VISIBLE);
@@ -138,26 +136,18 @@ public class CoursesFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String body = response.body() != null ? response.body().string() : "[]";
-                Log.d(TAG, "Response code: " + response.code());
-                Log.d(TAG, "Response body: " + body);
 
                 requireActivity().runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
                     try {
                         JsonArray arr = JsonParser.parseString(body).getAsJsonArray();
-                        Log.d(TAG, "Parsed items count: " + arr.size());
-
                         List<CourseItem> items = new ArrayList<>();
 
                         for (int i = 0; i < arr.size(); i++) {
                             JsonObject sc     = arr.get(i).getAsJsonObject();
                             JsonObject course = sc.has("courses") && !sc.get("courses").isJsonNull()
                                     ? sc.getAsJsonObject("courses") : null;
-
-                            if (course == null) {
-                                Log.w(TAG, "Item " + i + " has no courses object, skipping");
-                                continue;
-                            }
+                            if (course == null) continue;
 
                             CourseItem item = new CourseItem();
                             item.studentCourseId = sc.get("id").getAsString();
@@ -177,23 +167,20 @@ public class CoursesFragment extends Fragment {
                             item.description = course.has("description") && !course.get("description").isJsonNull()
                                     ? course.get("description").getAsString() : "";
 
-                            String semText = course.has("semester") && !course.get("semester").isJsonNull()
+                            String semText   = course.has("semester") && !course.get("semester").isJsonNull()
                                     ? course.get("semester").getAsString() : "0";
                             item.rawSemester = semText;
                             if (semText.contains(",")) semText = semText.split(",")[0].trim();
                             try { item.semester = Integer.parseInt(semText); }
                             catch (NumberFormatException ignored) { item.semester = 0; }
 
-                            Log.d(TAG, "Added course: " + item.title + " | status: " + item.status
-                                    + " | semester: " + item.semester + " | rawSemester: " + item.rawSemester);
                             items.add(item);
                         }
 
                         if (items.isEmpty()) {
-                            Log.w(TAG, "items list is empty after parsing");
                             tvEmpty.setVisibility(View.VISIBLE);
                         } else {
-                            Log.d(TAG, "Setting adapter with " + items.size() + " items");
+                            tvEmpty.setVisibility(View.GONE);
                             CourseCardAdapter adapter = new CourseCardAdapter(
                                     items, userCurrentSemester,
                                     courseItem -> {
@@ -216,7 +203,6 @@ public class CoursesFragment extends Fragment {
                         }
 
                     } catch (Exception e) {
-                        Log.e(TAG, "Parse error: " + e.getMessage());
                         tvEmpty.setVisibility(View.VISIBLE);
                         tvEmpty.setText("Σφάλμα ανάλυσης δεδομένων.");
                     }

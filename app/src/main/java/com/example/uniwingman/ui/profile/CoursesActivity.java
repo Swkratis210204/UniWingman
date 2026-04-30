@@ -1,5 +1,5 @@
 package com.example.uniwingman.ui.profile;
-
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.uniwingman.R;
@@ -23,5 +23,9 @@ public class CoursesActivity extends AppCompatActivity {
                             CoursesFragment.newInstance(status))
                     .commit();
         }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
