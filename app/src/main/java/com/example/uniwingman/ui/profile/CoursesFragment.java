@@ -1,14 +1,15 @@
 package com.example.uniwingman.ui.profile;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import com.example.uniwingman.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,14 +40,14 @@ public class CoursesFragment extends Fragment {
     private static final String TAG = "CoursesFragment";
     public static final String ARG_STATUS = "status";
 
-    private RecyclerView  recycler;
-    private ProgressBar   progressBar;
-    private TextView      tvEmpty;
-    private String        statusFilter;
-    private String        userId;
-    private int           userCurrentSemester;
-    private String        supabaseUrl;
-    private String        supabaseKey;
+    private RecyclerView   recycler;
+    private ProgressBar    progressBar;
+    private TextView       tvEmpty;
+    private String         statusFilter;
+    private String         userId;
+    private int            userCurrentSemester;
+    private String         supabaseUrl;
+    private String         supabaseKey;
     private final OkHttpClient client = new OkHttpClient();
 
     public static CoursesFragment newInstance(String status) {
@@ -87,9 +88,7 @@ public class CoursesFragment extends Fragment {
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitle(getTitleForStatus(statusFilter));
-        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
-        toolbar.setNavigationOnClickListener(v -> requireActivity().finish());
-
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_24);        toolbar.setNavigationOnClickListener(v -> requireActivity().finish());
         recycler    = root.findViewById(R.id.recyclerCourses);
         progressBar = root.findViewById(R.id.progressBar);
         tvEmpty     = root.findViewById(R.id.tvEmpty);
@@ -178,11 +177,9 @@ public class CoursesFragment extends Fragment {
                             item.description = course.has("description") && !course.get("description").isJsonNull()
                                     ? course.get("description").getAsString() : "";
 
-                            // Αποθηκεύουμε το rawSemester ΠΡΙΝ το split
                             String semText = course.has("semester") && !course.get("semester").isJsonNull()
                                     ? course.get("semester").getAsString() : "0";
-                            item.rawSemester = semText; // π.χ. "7,8" ή "6"
-
+                            item.rawSemester = semText;
                             if (semText.contains(",")) semText = semText.split(",")[0].trim();
                             try { item.semester = Integer.parseInt(semText); }
                             catch (NumberFormatException ignored) { item.semester = 0; }
@@ -199,8 +196,21 @@ public class CoursesFragment extends Fragment {
                             Log.d(TAG, "Setting adapter with " + items.size() + " items");
                             CourseCardAdapter adapter = new CourseCardAdapter(
                                     items, userCurrentSemester,
-                                    courseItem -> Toast.makeText(requireContext(),
-                                            courseItem.title, Toast.LENGTH_SHORT).show()
+                                    courseItem -> {
+                                        Intent intent = new Intent(requireContext(), CourseDetailActivity.class);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_STUDENT_COURSE_ID, courseItem.studentCourseId);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_COURSE_ID, courseItem.courseId);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_TITLE, courseItem.title);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_CODE, courseItem.code);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_ECTS, courseItem.ects);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_SEMESTER, String.valueOf(courseItem.semester));
+                                        intent.putExtra(CourseDetailActivity.EXTRA_DESCRIPTION, courseItem.description);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_STATUS, courseItem.status);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_GRADE, courseItem.grade != null ? courseItem.grade : -1f);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_ACADEMIC_YEAR, courseItem.academicYear);
+                                        intent.putExtra(CourseDetailActivity.EXTRA_TAKEN_SEMESTER, courseItem.takenSemester);
+                                        startActivity(intent);
+                                    }
                             );
                             recycler.setAdapter(adapter);
                         }
