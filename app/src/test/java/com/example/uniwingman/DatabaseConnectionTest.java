@@ -12,8 +12,8 @@ public class DatabaseConnectionTest {
     public void testSupabaseConnection() {
         // 1. Φόρτωση του .env (το "../" λέει στην Java να βγει από τον φάκελο test και να πάει στο root)
         Dotenv dotenv = Dotenv.configure()
-                .directory("../") // Οι δύο τελείες λένε: "βγες έξω από το app και πήγαινε στον κεντρικό φάκελο"
-                .load();
+                .directory("./assets") // Οι δύο τελείες λένε: "βγες έξω από το app και πήγαινε στον κεντρικό φάκελο"
+                .load("env");
 
         String url = dotenv.get("DB_URL");
         String user = dotenv.get("DB_USER");

@@ -3,26 +3,26 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/baseline_home_24"
+        android:icon="@drawable/ic_home_outline"
         android:title="Αρχική"
-        android:contentDescription="Αρχική σελίδα, ανακοινώσεις και νέα" />
+        android:contentDescription="Αρχική σελίδα" />
 
     <item
         android:id="@+id/navigation_ai_simulator"
-        android:icon="@drawable/baseline_psychology_24"
+        android:icon="@drawable/ic_ai_outline"
         android:title="AI Βοηθός"
-        android:contentDescription="Συνομιλία με τον ψηφιακό βοηθό τεχνητής νοημοσύνης" />
+        android:contentDescription="AI Βοηθός" />
 
     <item
         android:id="@+id/navigation_map"
-        android:icon="@drawable/baseline_map_24"
+        android:icon="@drawable/ic_map_outline"
         android:title="Χάρτης"
-        android:contentDescription="Πλοήγηση στον χάρτη και εύρεση σημείων ενδιαφέροντος" />
+        android:contentDescription="Χάρτης" />
 
     <item
         android:id="@+id/navigation_profile"
-        android:icon="@drawable/baseline_accessibility_new_24"
+        android:icon="@drawable/ic_profile_outline"
         android:title="Προφίλ"
-        android:contentDescription="Διαχείριση προφίλ, βαθμολογίες και ακαδημαϊκή πρόοδος" />
+        android:contentDescription="Προφίλ" />
 
 </menu>

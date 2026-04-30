@@ -43,11 +43,9 @@ public class MainActivity extends AppCompatActivity {
                 String title = item.getTitle().toString();
                 getWindow().getDecorView().announceForAccessibility("Μετάβαση στην ενότητα: " + title);
             }
-
             return handled;
         });
     }
-
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);

@@ -12,6 +12,8 @@ import com.example.uniwingman.MainActivity;
 import com.example.uniwingman.R;
 import com.example.uniwingman.data.SupabaseAuth;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -95,8 +97,29 @@ public class LoginActivity extends AppCompatActivity {
 
         supabaseAuth.login(email, password, new SupabaseAuth.AuthCallback() {
             @Override
-            public void onSuccess(String userId) {
+            public void onSuccess(String result) {
                 runOnUiThread(() -> {
+                    try {
+                        JsonObject json = JsonParser.parseString(result).getAsJsonObject();
+                        String userId   = json.get("userId").getAsString();
+                        String email    = json.get("email").getAsString();
+                        String username = json.get("username").getAsString();
+
+                        getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
+                                .edit()
+                                .putString("userId",   userId)
+                                .putString("email",    email)
+                                .putString("username", username)
+                                .apply();
+                    } catch (Exception e) {
+                        // fallback — αποθήκευσε τουλάχιστον το email
+                        getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
+                                .edit()
+                                .putString("email", email)
+                                .putString("username", email.split("@")[0])
+                                .apply();
+                    }
+
                     announceForAccessibility("Σύνδεση επιτυχής.");
                     Intent intent;
 //                    if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {

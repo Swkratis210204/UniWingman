@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_marginBottom="6dp">
+
+    <TextView
+        android:id="@+id/tvCourseName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ΑΑΥ"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/tvCourseTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="9:00-11:00"
+        android:textSize="11sp"
+        android:textColor="#FFFFFF"
+        android:alpha="0.9" />
+
+    <TextView
+        android:id="@+id/tvCourseType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Διάλεξη"
+        android:textSize="10sp"
+        android:textColor="#FFFFFF"
+        android:background="#33FFFFFF"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="2dp"
+        android:layout_marginTop="4dp" />
+</LinearLayout>
