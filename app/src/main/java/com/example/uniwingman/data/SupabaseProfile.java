@@ -117,7 +117,7 @@ public class SupabaseProfile {
 
                     if (gradeCount > 0) {
                         double avg = gradeSum / gradeCount;
-                        stats.gpa = String.format("%.1f", avg);
+                        stats.gpa = String.format("%.2f", avg);
                     }
 
                 } catch (Exception e) {

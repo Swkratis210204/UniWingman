@@ -152,7 +152,7 @@ public class SupabaseHome {
                             count++;
                         }
                     }
-                    if (count > 0) gpa = String.format("%.1f", sum / count);
+                    if (count > 0) gpa = String.format("%.2f", sum / count);
                 } catch (Exception ignored) {}
 
                 final String finalGpa = gpa;

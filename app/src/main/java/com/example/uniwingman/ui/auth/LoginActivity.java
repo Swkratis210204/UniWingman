@@ -122,14 +122,10 @@ public class LoginActivity extends AppCompatActivity {
 
                     announceForAccessibility("Σύνδεση επιτυχής.");
                     Intent intent;
-//                    if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {
-//                        intent = new Intent(LoginActivity.this, OnboardingActivity.class);
-//                    } else {
-//                        intent = new Intent(LoginActivity.this, MainActivity.class);
-//                    }
-                    if (true){
+                    if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {
                         intent = new Intent(LoginActivity.this, OnboardingActivity.class);
-
+                    } else {
+                        intent = new Intent(LoginActivity.this, MainActivity.class);
                     }
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

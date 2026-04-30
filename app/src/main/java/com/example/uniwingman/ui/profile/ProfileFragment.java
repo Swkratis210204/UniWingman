@@ -7,11 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.content.Intent;
+//import com.example.uniwingman.ui.profile.CoursesActivity;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.uniwingman.R;
 import com.example.uniwingman.databinding.FragmentProfileBinding;
 import com.example.uniwingman.ui.auth.LoginActivity;
 
@@ -26,7 +29,6 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
-        // Φόρτωσε username/email από SharedPreferences
         SharedPreferences prefs = requireActivity()
                 .getSharedPreferences("UniWingmanPrefs", android.content.Context.MODE_PRIVATE);
         String username = prefs.getString("username", "Φοιτητής");
@@ -49,10 +51,7 @@ public class ProfileFragment extends Fragment {
     private void setupHeader(String username, String email) {
         binding.tvUsername.setText(username);
         binding.tvEmail.setText(email);
-
-        // Initials avatar (π.χ. "Γιάννης Κωνσταντίνου" → "ΓΚ")
-        String initials = getInitials(username);
-        binding.tvAvatar.setText(initials);
+        binding.tvAvatar.setText(getInitials(username));
     }
 
     private String getInitials(String name) {
@@ -64,26 +63,23 @@ public class ProfileFragment extends Fragment {
         return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
     }
 
+    private void navigateToCourses(String status) {
+        Intent intent = new Intent(requireActivity(), CoursesActivity.class);
+        intent.putExtra(CoursesActivity.ARG_STATUS, status);
+        startActivity(intent);
+    }
+
     private void setupMenuRows() {
-        // Placeholder click listeners — θα υλοποιηθούν αργότερα
-        binding.rowDeclared.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Δηλωμένα Μαθήματα — Σύντομα!", Toast.LENGTH_SHORT).show());
-
-        binding.rowPassed.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Περασμένα Μαθήματα — Σύντομα!", Toast.LENGTH_SHORT).show());
-
-        binding.rowFailed.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Κομμένα Μαθήματα — Σύντομα!", Toast.LENGTH_SHORT).show());
+        binding.rowDeclared.setOnClickListener(v -> navigateToCourses("in_progress"));
+        binding.rowPassed.setOnClickListener(v   -> navigateToCourses("passed"));
+        binding.rowFailed.setOnClickListener(v   -> navigateToCourses("failed"));
 
         binding.rowSettings.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Ρυθμίσεις — Σύντομα!", Toast.LENGTH_SHORT).show());
-
         binding.rowNotifications.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Ειδοποιήσεις — Σύντομα!", Toast.LENGTH_SHORT).show());
-
         binding.rowEditProfile.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Επεξεργασία Προφίλ — Σύντομα!", Toast.LENGTH_SHORT).show());
-
         binding.rowHelp.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Βοήθεια & Υποστήριξη — Σύντομα!", Toast.LENGTH_SHORT).show());
     }
@@ -101,23 +97,18 @@ public class ProfileFragment extends Fragment {
         viewModel.getGpa().observe(getViewLifecycleOwner(), gpa -> {
             if (gpa != null) binding.tvGpa.setText(gpa);
         });
-
         viewModel.getStreak().observe(getViewLifecycleOwner(), streak -> {
             if (streak != null) binding.tvStreak.setText(String.valueOf(streak));
         });
-
         viewModel.getTotalCourses().observe(getViewLifecycleOwner(), total -> {
             if (total != null) binding.tvTotalCourses.setText(String.valueOf(total));
         });
-
         viewModel.getDeclaredCount().observe(getViewLifecycleOwner(), count -> {
             if (count != null) binding.badgeDeclared.setText(String.valueOf(count));
         });
-
         viewModel.getPassedCount().observe(getViewLifecycleOwner(), count -> {
             if (count != null) binding.badgePassed.setText(String.valueOf(count));
         });
-
         viewModel.getFailedCount().observe(getViewLifecycleOwner(), count -> {
             if (count != null) binding.badgeFailed.setText(String.valueOf(count));
         });
