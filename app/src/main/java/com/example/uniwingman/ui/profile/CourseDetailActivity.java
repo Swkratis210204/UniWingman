@@ -272,16 +272,33 @@ public class CourseDetailActivity extends AppCompatActivity {
         String gradeStr  = etGrade.getText().toString().trim();
         String newStatus = spinnerStatus.getSelectedItem().toString();
 
-        JsonObject body = new JsonObject();
-        body.addProperty("status", newStatus);
-
+        // Constraint checks
+        if (newStatus.equals("in_progress") && !gradeStr.isEmpty()) {
+            Toast.makeText(this, "Μάθημα σε εξέλιξη δεν μπορεί να έχει βαθμό.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!gradeStr.isEmpty()) {
             try {
-                body.addProperty("grade", Float.parseFloat(gradeStr));
+                float g = Float.parseFloat(gradeStr);
+                if (newStatus.equals("passed") && g < 5) {
+                    Toast.makeText(this, "Περασμένο μάθημα πρέπει να έχει βαθμό ≥ 5.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (newStatus.equals("failed") && g >= 5) {
+                    Toast.makeText(this, "Κομμένο μάθημα πρέπει να έχει βαθμό < 5.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Μη έγκυρος βαθμός.", Toast.LENGTH_SHORT).show();
                 return;
             }
+        }
+
+        JsonObject body = new JsonObject();
+        body.addProperty("status", newStatus);
+
+        if (!gradeStr.isEmpty() && !newStatus.equals("in_progress")) {
+            body.addProperty("grade", Float.parseFloat(gradeStr));
         } else {
             body.add("grade", com.google.gson.JsonNull.INSTANCE);
         }
