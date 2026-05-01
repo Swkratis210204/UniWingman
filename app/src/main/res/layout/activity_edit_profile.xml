@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F6FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF"
+            android:elevation="2dp" />
+
+        <!-- Προφίλ -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Στοιχεία Προφίλ"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A2E"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Username"
+                    android:textSize="12sp"
+                    android:textColor="#888888"
+                    android:layout_marginBottom="4dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etUsername"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Τρέχον Εξάμηνο"
+                    android:textSize="12sp"
+                    android:textColor="#888888"
+                    android:layout_marginBottom="4dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerSemester"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp" />
+
+                <Button
+                    android:id="@+id/btnSaveProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Αποθήκευση Προφίλ"
+                    android:backgroundTint="#3D5AFE"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Αλλαγή Κωδικού -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Αλλαγή Κωδικού"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A2E"
+                    android:layout_marginBottom="12dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="Παλιός Κωδικός"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etOldPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="Νέος Κωδικός"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etNewPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Επανάληψη Νέου Κωδικού"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etConfirmPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/btnChangePassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Αλλαγή Κωδικού"
+                    android:backgroundTint="#3D5AFE"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

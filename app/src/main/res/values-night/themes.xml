@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.UniWingman" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Main Backgrounds -->
+        <item name="colorPrimary">#1A73E8</item> <!-- Muted blue for Dark Mode -->
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#1E1E1E</item> <!-- Slightly lighter than the background -->
+        <item name="android:windowBackground">@color/profile_dark_bg</item>
+        <item name="android:colorBackground">@color/profile_dark_bg</item>
+
+        <!-- Surfaces (Cards/Spinners) -->
+        <item name="colorOnSurface">@color/white</item>
+
+        <!-- Text Colors -->
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/profile_text_muted</item>
+
+        <!-- Branding -->
+        <item name="colorSecondary">@color/nav_selected</item>
+
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/profile_dark_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

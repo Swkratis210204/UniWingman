@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/android:windowBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurface"
+            android:elevation="2dp"
+            app:titleTextColor="?attr/colorOnSurface" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="?attr/colorSurface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Εμφάνιση"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Night Mode"
+                            android:textSize="14sp"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Σκοτεινό θέμα για όλη την εφαρμογή"
+                            android:textSize="12sp"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                    </LinearLayout>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchNightMode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Μέγεθος Κειμένου"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Προσαρμογή μεγέθους γραμματοσειράς"
+                    android:textSize="12sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerTextSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="?attr/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Λειτουργία Χρωματικής Τύφλωσης"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Προσαρμογή χρωμάτων για καλύτερη ορατότητα"
+                    android:textSize="12sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerColorblind"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="?attr/colorOnSurface" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="?attr/colorSurface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Γενικά"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Γλώσσα"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="?attr/colorOnSurface" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ειδοποιήσεις"
+                            android:textSize="14sp"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Λήψη ειδοποιήσεων από την εφαρμογή"
+                            android:textSize="12sp"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                    </LinearLayout>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchNotifications"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/btnApply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="24dp"
+            android:text="Εφαρμογή Ρυθμίσεων"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

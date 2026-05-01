@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:/Users/swkra/UniWingman/app/src/main/assets\")",
+      "Bash(mv \"C:/Users/swkra/UniWingman/app/.env\" \"C:/Users/swkra/UniWingman/app/src/main/assets/.env\")"
+    ]
+  }
+}
