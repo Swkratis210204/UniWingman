@@ -40,13 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_NEXT ||
                     (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                String email = emailEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
-                if (!email.isEmpty() && !password.isEmpty()) {
-                    performLogin();
-                } else {
-                    passwordEditText.requestFocus();
-                }
+                passwordEditText.requestFocus(); // απλώς πήγαινε στο password
                 return true;
             }
             return false;
@@ -55,7 +49,8 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE ||
                     actionId == EditorInfo.IME_ACTION_GO ||
-                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                            && event.getAction() == KeyEvent.ACTION_DOWN)) {
                 performLogin();
                 return true;
             }
@@ -69,13 +64,16 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         forgotPasswordText.setOnClickListener(v ->
-                announceForAccessibility("Η επαναφορά κωδικού είναι προσωρινά μη διαθέσιμη.")
+                showMessage("Η επαναφορά κωδικού είναι προσωρινά μη διαθέσιμη.")
         );
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void announceForAccessibility(String message) {
         getWindow().getDecorView().announceForAccessibility(message);
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void performLogin() {
@@ -83,12 +81,12 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordEditText.getText().toString().trim();
 
         if (email.isEmpty()) {
-            announceForAccessibility("Παρακαλώ συμπληρώστε το email σας.");
+            showMessage("Παρακαλώ συμπληρώστε το email σας.");
             emailEditText.requestFocus();
             return;
         }
         if (password.isEmpty()) {
-            announceForAccessibility("Παρακαλώ συμπληρώστε τον κωδικό σας.");
+            showMessage("Παρακαλώ συμπληρώστε τον κωδικό σας.");
             passwordEditText.requestFocus();
             return;
         }
@@ -120,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                                 .apply();
                     }
 
-                    announceForAccessibility("Σύνδεση επιτυχής.");
+                    showMessage("Σύνδεση επιτυχής.");
                     Intent intent;
                     if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {
                         intent = new Intent(LoginActivity.this, OnboardingActivity.class);
@@ -137,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onError(String errorMsg) {
                 runOnUiThread(() -> {
                     loginButton.setEnabled(true);
-                    announceForAccessibility("Σφάλμα σύνδεσης: " + errorMsg);
+                    showMessage("Σφάλμα σύνδεσης: " + errorMsg);
                 });
             }
         });

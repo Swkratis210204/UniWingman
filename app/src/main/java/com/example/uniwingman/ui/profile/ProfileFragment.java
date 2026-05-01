@@ -2,17 +2,20 @@ package com.example.uniwingman.ui.profile;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.uniwingman.R;
 import com.example.uniwingman.databinding.FragmentProfileBinding;
 import com.example.uniwingman.ui.auth.LoginActivity;
 
@@ -20,6 +23,23 @@ public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
+
+    private final ActivityResultLauncher<Intent> pickImageLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == getActivity().RESULT_OK
+                                && result.getData() != null) {
+                            Uri imageUri = result.getData().getData();
+                            requireActivity()
+                                    .getSharedPreferences("UniWingmanPrefs", android.content.Context.MODE_PRIVATE)
+                                    .edit()
+                                    .putString("profileImageUri", imageUri.toString())
+                                    .apply();
+                            loadProfileImage(imageUri);
+                        }
+                    }
+            );
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -37,6 +57,11 @@ public class ProfileFragment extends Fragment {
         setupMenuRows(userId);
         setupLogout(prefs);
 
+        String savedUri = prefs.getString("profileImageUri", null);
+        if (savedUri != null) {
+            loadProfileImage(Uri.parse(savedUri));
+        }
+
         if (userId != null) {
             viewModel.loadProfileStats(userId);
         }
@@ -50,6 +75,19 @@ public class ProfileFragment extends Fragment {
         binding.tvUsername.setText(username);
         binding.tvEmail.setText(email);
         binding.tvAvatar.setText(getInitials(username));
+        binding.tvAvatar.setOnClickListener(v -> pickImage());
+    }
+
+    private void pickImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        pickImageLauncher.launch(intent);
+    }
+
+    private void loadProfileImage(Uri uri) {
+        binding.ivAvatar.setImageURI(uri);
+        binding.tvAvatar.setVisibility(View.GONE);
+        binding.ivAvatar.setVisibility(View.VISIBLE);
     }
 
     private String getInitials(String name) {
@@ -79,7 +117,7 @@ public class ProfileFragment extends Fragment {
         binding.rowFailed.setOnClickListener(v   -> navigateToCourses("failed"));
 
         binding.rowEditProfile.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Επεξεργασία Προφίλ — Σύντομα!", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireActivity(), EditProfileActivity.class)));
 
         binding.rowAddCourse.setOnClickListener(v -> {
             if (userId != null) navigateToAddCourse(userId);
@@ -87,11 +125,13 @@ public class ProfileFragment extends Fragment {
         });
 
         binding.rowSettings.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Ρυθμίσεις — Σύντομα!", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireActivity(), SettingsActivity.class)));
+
         binding.rowNotifications.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Ειδοποιήσεις — Σύντομα!", Toast.LENGTH_SHORT).show());
+
         binding.rowHelp.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Βοήθεια & Υποστήριξη — Σύντομα!", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireActivity(), HelpActivity.class)));
     }
 
     private void setupLogout(SharedPreferences prefs) {
@@ -125,11 +165,6 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-    @Override
     public void onResume() {
         super.onResume();
         SharedPreferences prefs = requireActivity()
@@ -138,5 +173,11 @@ public class ProfileFragment extends Fragment {
         if (userId != null) {
             viewModel.loadProfileStats(userId);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

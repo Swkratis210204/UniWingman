@@ -6,6 +6,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -33,6 +34,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.profile.CourseDetailActivity" />
+        <activity android:name=".ui.profile.EditProfileActivity" />
+        <activity android:name=".ui.profile.SettingsActivity" />
+        <activity android:name=".ui.profile.HelpActivity" />
         <activity android:name=".ui.profile.AddCourseActivity" />
         <activity android:name=".ui.profile.CoursesActivity" />
         <activity
