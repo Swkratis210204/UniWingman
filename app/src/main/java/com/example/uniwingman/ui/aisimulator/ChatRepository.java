@@ -3,6 +3,7 @@ package com.example.uniwingman.ui.aisimulator;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.uniwingman.data.StudentProfileRepository;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,6 +32,10 @@ public class ChatRepository {
     private String supabaseUrl;
     private String supabaseKey;
 
+    // Student profile
+    private final StudentProfileRepository profileRepo;
+    private boolean profileReady = false;
+
     // Conversation history για το online chatbot
     private final List<JsonObject> conversationHistory = new ArrayList<>();
 
@@ -40,8 +45,8 @@ public class ChatRepository {
     private static final String CHAT_MODEL = "gemini-2.0-flash";
     private static final int TOP_K = 10;
 
-    // System prompt για το RAG chatbot
-    private static final String SYSTEM_PROMPT =
+    // Base system prompt (profile will be prepended at runtime)
+    private static final String BASE_SYSTEM_PROMPT =
             "Είσαι βοηθός φοιτητών για το Τμήμα Πληροφορικής του ΟΠΑ (UniWingman).\n" +
                     "Απάντησε στην ερώτηση του φοιτητή χρησιμοποιώντας ΜΟΝΟ τις πληροφορίες από το παρακάτω context.\n" +
                     "Αν δεν έχεις αρκετές πληροφορίες, πες: 'Δεν έχω αρκετές πληροφορίες για να απαντήσω πλήρως.'\n" +
@@ -55,24 +60,79 @@ public class ChatRepository {
                     "- Όταν αναφέρεις μαθήματα 6ου εξαμήνου πρόσθεσε '(μπορείς να το δηλώσεις και στο 8ο)'.\n" +
                     "- Μαθήματα Ζ/Η μπορούν να παρθούν είτε στο 7ο είτε στο 8ο.\n" +
                     "- Αν κοπείς σε χειμερινό μάθημα, το ξαναπαίρνεις τον επόμενο χειμώνα ή Σεπτέμβριο.\n" +
-                    "- Όταν απαντάς για μεταπτυχιακά, συμπεριέλαβε πάντα τον ιστότοπο αν υπάρχει στο context."+
-            "Να απαντάς πάντα σύντομα και περιεκτικά.\n" +
-            "Όταν αναφέρεις λίστα μαθημάτων, χρησιμοποίησε αριθμημένη λίστα χωρίς επιπλέον εξηγήσεις.\n" +
-            "ΜΗΝ προσθέτεις εισαγωγικές προτάσεις ή περιττές επεξηγήσεις — απλά δώσε την απάντηση.\n";
+                    "- Όταν απαντάς για μεταπτυχιακά, συμπεριέλαβε πάντα τον ιστότοπο αν υπάρχει στο context.\n" +
+                    "Να απαντάς πάντα σύντομα και περιεκτικά.\n" +
+                    "Όταν αναφέρεις λίστα μαθημάτων, χρησιμοποίησε απλή λίστα με - χωρίς επιπλέον εξηγήσεις.\n" +
+                    "ΜΗΝ προσθέτεις εισαγωγικές προτάσεις ή περιττές επεξηγήσεις — απλά δώσε την απάντηση.\n" +
+                    "ΜΗΝ χρησιμοποιείς markdown (**, ##, αριθμημένες λίστες). Μόνο απλό κείμενο και - για λίστες.\n" +
+                    "Χρησιμοποίησε το ΠΡΟΦΙΛ ΦΟΙΤΗΤΗ (αν υπάρχει παραπάνω) για εξατομικευμένες απαντήσεις.\n" +
+                    "Αν η ερώτηση αφορά τον συγκεκριμένο φοιτητή (π.χ. 'ποιος είναι ο ΜΟ μου', 'τι μαθήματα έχω'), " +
+                    "απάντησε με βάση το προφίλ του, όχι γενικά.\n" +
+                    "\nΣΗΜΑΝΤΙΚΟ για κύκλους σπουδών:\n" +
+                    "- Κάθε κύκλος απαιτεί 5 μαθήματα για να κλείσει.\n" +
+                    "- Ένα μάθημα που ανήκει σε ΠΟΛΛΟΥΣ κύκλους μπορεί να δηλωθεί ΜΟΝΟ σε ΕΝΑΝ κύκλο κατά την κατάθεση πτυχίου.\n" +
+                    "- Η επιλογή σε ποιον κύκλο θα δηλωθεί ένα κοινό μάθημα είναι ΚΡΙΣΙΜΗ για τη στρατηγική αποφοίτησης.\n" +
+                    "- Παράδειγμα: αν έχεις 5 μαθήματα Κύκλου 7 και 2 μαθήματα Κύκλου 1, και 3 ανήκουν και στους δύο, " +
+                    "μπορείς να τα μοιράσεις ώστε να κλείσουν και οι δύο με 5+5.\n" +
+                    "- Η Ερευνητική Εργασία και η Πτυχιακή Εργασία μετράνε ως μαθήματα κύκλου σε ΟΛΟΥΣ τους κύκλους.\n" +
+                    "- ΚΡΙΣΙΜΟ: Χρησιμοποίησε ΑΥΣΤΗΡΑ την ΑΝΑΛΥΣΗ ΚΥΚΛΩΝ ΣΠΟΥΔΩΝ από το προφίλ — μην παραλείπεις κανένα μάθημα.\n" +
+                    "- Τα 'Περασμένα' και τα 'Δηλωμένα' είναι ΕΝΤΕΛΩΣ ΔΙΑΦΟΡΕΤΙΚΑ:\n" +
+                    "  * Περασμένα = έχουν ήδη βαθμολογηθεί και μετράνε οριστικά.\n" +
+                    "  * Δηλωμένα = είναι σε εξέλιξη φέτος, ΔΕΝ έχουν περαστεί ακόμα.\n" +
+                    "  * Όταν λες πόσα έχει περάσει, μέτρα ΜΟΝΟ τα Περασμένα.\n" +
+                    "  * Όταν προτείνεις στρατηγική, μπορείς να αναφέρεις τα Δηλωμένα ως 'υπό εξέλιξη'.\n" +
+                    "- Κάθε μάθημα να αναφέρεται ΜΙΑ ΦΟΡΑ στην απάντηση. Αν ανήκει σε πολλούς κύκλους, " +
+                    "σημείωσέ το ως '(Κύκλος X ή Y)' αντί να το επαναλαμβάνεις.\n";
+
+    // Personal question keywords for basic mode
+    private static final String[] PERSONAL_KEYWORDS = {
+            "μο μου", "μέσος όρος μου", "βαθμολογία μου", "βαθμοί μου",
+            "ects μου", "μαθήματα μου", "μαθήματά μου", "εξάμηνο μου",
+            "πέρασα", "κόπηκα", "δηλωμένα", "ολοκλήρωσα",
+            "πρόοδός μου", "πρόοδος μου", "πτυχίο μου", "τι μου λείπει"
+    };
 
     public interface AICallback {
         void onSuccess(String response);
         void onError(String error);
     }
 
-    public ChatRepository(Context context) {
+    // ─────────────────────────────────────────────
+    //  Constructor — accepts StudentProfileRepository
+    // ─────────────────────────────────────────────
+    public ChatRepository(Context context, StudentProfileRepository profileRepo) {
         this.context = context;
+        this.profileRepo = profileRepo;
         loadCredentials();
         loadBasicInfo();
+        // Load profile once on init
+        loadProfileAsync();
     }
 
-    // CREDENTIALS & INIT
+    // Backwards-compatible constructor (no profile)
+    public ChatRepository(Context context) {
+        this(context, new StudentProfileRepository(context));
+    }
 
+    private void loadProfileAsync() {
+        profileRepo.loadProfile(new StudentProfileRepository.ProfileCallback() {
+            @Override
+            public void onReady(String profileString) {
+                profileReady = true;
+                Log.d(TAG, "Student profile ready:\n" + profileString);
+            }
+
+            @Override
+            public void onError(String error) {
+                profileReady = false;
+                Log.w(TAG, "Profile load failed: " + error);
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    //  CREDENTIALS & INIT
+    // ─────────────────────────────────────────────
     private void loadCredentials() {
         try {
             Dotenv dotenv = Dotenv.configure().directory("./assets").filename("env").load();
@@ -97,8 +157,9 @@ public class ChatRepository {
         }
     }
 
-    // OFFLINE (BASIC) MODE
-
+    // ─────────────────────────────────────────────
+    //  OFFLINE (BASIC) MODE
+    // ─────────────────────────────────────────────
     private String normalize(String text) {
         if (text == null) return "";
         return text.toLowerCase().trim()
@@ -110,12 +171,22 @@ public class ChatRepository {
     }
 
     public void fetchBasicResponse(String prompt, AICallback callback) {
+        // Pre-check: is this a personal question?
+        String normalizedPrompt = normalize(prompt);
+        if (isPersonalQuestion(normalizedPrompt)) {
+            String profileAnswer = answerFromProfile(normalizedPrompt);
+            if (profileAnswer != null) {
+                callback.onSuccess(profileAnswer);
+                return;
+            }
+        }
+
         if (basicData == null) { callback.onError("Σφάλμα φόρτωσης JSON"); return; }
 
         JsonObject knowledgeBase = basicData.getAsJsonObject("knowledge_base");
         JsonObject bestEntry = null;
         double bestScore = 0;
-        String q = normalize(prompt);
+        String q = normalizedPrompt;
 
         for (Map.Entry<String, JsonElement> categoryEntry : knowledgeBase.entrySet()) {
             if (categoryEntry.getValue().isJsonArray()) {
@@ -136,6 +207,52 @@ public class ChatRepository {
         } else {
             callback.onSuccess("Δεν βρήκα κάτι συγκεκριμένο. (Score: " + (int)bestScore + ")");
         }
+    }
+
+    // Check if the question is about the student's personal data
+    private boolean isPersonalQuestion(String normalizedPrompt) {
+        for (String keyword : PERSONAL_KEYWORDS) {
+            if (normalizedPrompt.contains(normalize(keyword))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Answer personal questions directly from cached profile
+    private String answerFromProfile(String q) {
+        if (!profileReady || profileRepo.getCachedProfile().isEmpty()) {
+            return "Δεν μπόρεσα να φορτώσω το προφίλ σου αυτή τη στιγμή.";
+        }
+
+        String profile = profileRepo.getCachedProfile();
+
+        // GPA question
+        if (q.contains("μεσος ορος") || q.contains("μο") || q.contains("βαθμολογια")) {
+            return extractLineFromProfile(profile, "Μέσος Όρος Βαθμολογίας:");
+        }
+
+        // ECTS question
+        if (q.contains("ects")) {
+            return extractLineFromProfile(profile, "Συνολικά ECTS");
+        }
+
+        // Semester question
+        if (q.contains("εξαμηνο")) {
+            return extractLineFromProfile(profile, "Τρέχον Εξάμηνο:");
+        }
+
+        // General profile dump for "μαθήματά μου", "πρόοδός μου" etc.
+        return profile;
+    }
+
+    private String extractLineFromProfile(String profile, String linePrefix) {
+        for (String line : profile.split("\n")) {
+            if (line.contains(linePrefix)) {
+                return line.trim();
+            }
+        }
+        return profile; // fallback: return full profile
     }
 
     private double calculateScore(JsonObject entry, String q) {
@@ -191,7 +308,7 @@ public class ChatRepository {
 
                 if (q.contains(root)) {
                     if (foundSpecific) sb.append("\n\n---\n\n");
-                            sb.append("Καθηγητής: ").append(name).append(". ")
+                    sb.append("Καθηγητής: ").append(name).append(". ")
                             .append("Τίτλος ").append(p.get("role").getAsString()).append("\n")
                             .append("Γραφείο ").append(p.get("office").getAsString()).append("\n")
                             .append("Εmail ").append(p.get("email").getAsString()).append("\n")
@@ -206,11 +323,9 @@ public class ChatRepository {
     }
 
     // ─────────────────────────────────────────────
-    // ONLINE (THINKING) MODE — RAG PIPELINE
+    //  ONLINE (THINKING) MODE — RAG PIPELINE
     // ─────────────────────────────────────────────
-
     public void fetchThinkingResponse(String userQuestion, AICallback callback) {
-        // Run on background thread
         new Thread(() -> {
             try {
                 // Step 1: Embed the question
@@ -223,15 +338,15 @@ public class ChatRepository {
 
                 // Step 2: Retrieve relevant chunks from Supabase
                 Log.d(TAG, "Step 2: Retrieving chunks from Supabase...");
-                String context = retrieveContext(queryEmbedding);
-                if (context == null) {
+                String ragContext = retrieveContext(queryEmbedding);
+                if (ragContext == null) {
                     callback.onError("Σφάλμα ανάκτησης δεδομένων.");
                     return;
                 }
 
-                // Step 3: Build prompt with context + conversation history
+                // Step 3: Build prompt with profile + context
                 Log.d(TAG, "Step 3: Building prompt...");
-                String fullPrompt = buildPrompt(userQuestion, context);
+                String fullPrompt = buildPrompt(userQuestion, ragContext);
 
                 // Step 4: Add to conversation history
                 JsonObject userMsg = new JsonObject();
@@ -244,12 +359,10 @@ public class ChatRepository {
                 String answer = callGemini();
 
                 if (answer != null) {
-                    // Add assistant response to history
                     JsonObject assistantMsg = new JsonObject();
                     assistantMsg.addProperty("role", "model");
                     assistantMsg.addProperty("content", answer);
                     conversationHistory.add(assistantMsg);
-
                     callback.onSuccess(answer);
                 } else {
                     callback.onError("Σφάλμα απάντησης Gemini.");
@@ -301,7 +414,6 @@ public class ChatRepository {
     }
 
     private String retrieveContext(float[] queryEmbedding) throws IOException {
-        // Build the embedding array as JSON string
         StringBuilder embStr = new StringBuilder("[");
         for (int i = 0; i < queryEmbedding.length; i++) {
             embStr.append(queryEmbedding[i]);
@@ -309,7 +421,6 @@ public class ChatRepository {
         }
         embStr.append("]");
 
-        // Call Supabase RPC match_documents
         JsonObject body = new JsonObject();
         body.add("query_embedding", JsonParser.parseString(embStr.toString()));
         body.addProperty("match_count", TOP_K);
@@ -330,15 +441,12 @@ public class ChatRepository {
                 return null;
             }
 
-            String responseBody = response.body().string();
-            JsonArray results = JsonParser.parseString(responseBody).getAsJsonArray();
-
+            JsonArray results = JsonParser.parseString(response.body().string()).getAsJsonArray();
             StringBuilder context = new StringBuilder();
             for (int i = 0; i < results.size(); i++) {
                 JsonObject doc = results.get(i).getAsJsonObject();
-                String text = doc.get("text").getAsString();
                 context.append("[Source ").append(i + 1).append("]\n");
-                context.append(text).append("\n\n");
+                context.append(doc.get("text").getAsString()).append("\n\n");
             }
 
             Log.d(TAG, "Retrieved " + results.size() + " chunks");
@@ -346,14 +454,27 @@ public class ChatRepository {
         }
     }
 
-    private String buildPrompt(String question, String context) {
-        return SYSTEM_PROMPT + "\n\nContext:\n" + context + "\nΕρώτηση: " + question + "\n\nΑπάντηση:";
+    // Build prompt: profile block + system prompt + RAG context + question
+    private String buildPrompt(String question, String ragContext) {
+        StringBuilder prompt = new StringBuilder();
+
+        // Prepend student profile if available
+        String profile = profileRepo.getCachedProfile();
+        if (!profile.isEmpty()) {
+            prompt.append(profile).append("\n");
+        }
+
+        prompt.append(BASE_SYSTEM_PROMPT);
+        prompt.append("\n\nContext:\n").append(ragContext);
+        prompt.append("\nΕρώτηση: ").append(question);
+        prompt.append("\n\nΑπάντηση:");
+
+        return prompt.toString();
     }
 
     private String callGemini() throws IOException {
         String url = GEMINI_BASE + "/models/" + CHAT_MODEL + ":generateContent";
 
-        // Build contents array from conversation history
         JsonArray contents = new JsonArray();
         for (JsonObject msg : conversationHistory) {
             JsonObject content = new JsonObject();
