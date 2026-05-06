@@ -382,51 +382,41 @@ public class StudentProfileRepository {
 
         // ── Cycle analysis ──
         sb.append("\n=== ΑΝΑΛΥΣΗ ΚΥΚΛΩΝ ΣΠΟΥΔΩΝ ===\n");
-        sb.append("(Κάθε κύκλος χρειάζεται 5 μαθήματα. Ένα μάθημα δηλώνεται σε ΕΝΑΝ μόνο κύκλο.)\n");
-        sb.append("(Τα μαθήματα εμφανίζονται μόνο στον πρώτο κύκλο τους. Αν ανήκουν και σε άλλον, αναφέρεται.)\n\n");
-
-        // Track which course titles have already been shown (per list: completed / enrolled)
-        Set<String> shownCompleted = new HashSet<>();
-        Set<String> shownEnrolled = new HashSet<>();
+        sb.append("(Κάθε κύκλος χρειάζεται 5 μαθήματα. Ένα μάθημα δηλώνεται σε ΕΝΑΝ μόνο κύκλο κατά την αποφοίτηση.)\n");
+        sb.append("(Οι κύκλοι κλείνουν ΑΝΕΞΑΡΤΗΤΑ ο ένας από τον άλλον.)\n\n");
 
         for (int majorId = 1; majorId <= 8; majorId++) {
             String majorName = MAJOR_NAMES.get(majorId);
 
-            // Build lists — only include courses not yet shown
             List<String> completedForMajor = new ArrayList<>();
             List<String> enrolledForMajor = new ArrayList<>();
-
-            // Count includes ALL courses for this major (even already shown) for accurate status
-            int completedCount = 0;
-            int enrolledCount = 0;
+            List<String> failedForMajor = new ArrayList<>();
 
             for (CourseEntry c : completedCourses) {
+                if (c.isThesisOrResearch()) continue;
                 Set<Integer> majors = courseMajorMap.get(c.id);
-                boolean belongs = (majors != null && majors.contains(majorId)) || c.isThesisOrResearch();
-                if (belongs) {
-                    completedCount++;
-                    if (!shownCompleted.contains(c.title)) {
-                        // Build suffix noting other cycles
-                        String suffix = buildOtherCyclesSuffix(c, majorId);
-                        completedForMajor.add(c.title + suffix);
-                        shownCompleted.add(c.title);
-                    }
+                if (majors != null && majors.contains(majorId)) {
+                    completedForMajor.add(c.title + buildOtherCyclesSuffix(c, majorId));
                 }
             }
 
             for (CourseEntry c : enrolledCourses) {
+                if (c.isThesisOrResearch()) continue;
                 Set<Integer> majors = courseMajorMap.get(c.id);
-                boolean belongs = (majors != null && majors.contains(majorId)) || c.isThesisOrResearch();
-                if (belongs) {
-                    enrolledCount++;
-                    if (!shownEnrolled.contains(c.title)) {
-                        String suffix = buildOtherCyclesSuffix(c, majorId);
-                        enrolledForMajor.add(c.title + suffix);
-                        shownEnrolled.add(c.title);
-                    }
+                if (majors != null && majors.contains(majorId)) {
+                    enrolledForMajor.add(c.title + buildOtherCyclesSuffix(c, majorId));
                 }
             }
 
+            for (CourseEntry c : failedCourses) {
+                Set<Integer> majors = courseMajorMap.get(c.id);
+                if (majors != null && majors.contains(majorId)) {
+                    failedForMajor.add(c.title + buildOtherCyclesSuffix(c, majorId));
+                }
+            }
+
+            int completedCount = completedForMajor.size();
+            int enrolledCount = enrolledForMajor.size();
             int remaining = Math.max(0, 5 - completedCount - enrolledCount);
             boolean closed = completedCount >= 5;
             boolean closedWithEnrolled = !closed && (completedCount + enrolledCount) >= 5;
@@ -434,7 +424,7 @@ public class StudentProfileRepository {
             sb.append("Κύκλος ").append(majorId).append(" - ").append(majorName).append(":\n");
 
             if (closed) {
-                sb.append("  Κατάσταση: ΚΛΕΙΣΤΟΣ (").append(completedCount).append(" περασμένα)\n");
+                sb.append("  Κατάσταση: ΚΛΕΙΣΤΟΣ ανεξάρτητα (").append(completedCount).append(" περασμένα)\n");
             } else if (closedWithEnrolled) {
                 sb.append("  Κατάσταση: Κλείνει αν περαστούν τα δηλωμένα (")
                         .append(completedCount).append(" περασμένα + ").append(enrolledCount).append(" δηλωμένα)\n");
@@ -444,27 +434,49 @@ public class StudentProfileRepository {
             }
 
             if (!completedForMajor.isEmpty()) {
-                sb.append("  Περασμένα (νέα σε αυτόν τον κύκλο):\n");
+                sb.append("  Περασμένα (").append(completedCount).append("/5):\n");
                 for (String t : completedForMajor) sb.append("    - ").append(t).append("\n");
+            } else {
+                sb.append("  Περασμένα: κανένα\n");
             }
 
             if (!enrolledForMajor.isEmpty()) {
-                sb.append("  Δηλωμένα φέτος (νέα σε αυτόν τον κύκλο):\n");
+                sb.append("  Δηλωμένα φέτος (υπό εξέλιξη, ΔΕΝ έχουν περαστεί ακόμα):\n");
                 for (String t : enrolledForMajor) sb.append("    - ").append(t).append("\n");
+            }
+
+            if (!failedForMajor.isEmpty()) {
+                sb.append("  Αποτυχημένα (πρέπει να επαναληφθούν για να μετρήσουν):\n");
+                for (String t : failedForMajor) sb.append("    - ").append(t).append("\n");
             }
 
             sb.append("\n");
         }
 
-        sb.append("=== ΤΕΛΟΣ ΑΝΑΛΥΣΗΣ ===\n");
+        sb.append("ΣΗΜΕΙΩΣΗ για Πτυχιακή και Ερευνητική Εργασία:\n");
+        sb.append("Η Πτυχιακή και η Ερευνητική Εργασία δηλώνονται σε κύκλο κατόπιν συνεννόησης με τον επιβλέποντα καθηγητή,\n");
+        sb.append("ανάλογα με το θέμα τους. Δεν προτείνονται αυτόματα — αφήνονται στην επιλογή του φοιτητή.\n");
+
+        // List thesis/research courses the student has
+        for (CourseEntry c : completedCourses) {
+            if (c.isThesisOrResearch()) {
+                sb.append("  - ").append(c.title).append(" (ΠΕΡΑΣΜΕΝΗ");
+                if (c.grade > 0) sb.append(String.format(", Βαθμός: %.1f", c.grade));
+                sb.append(") — δηλώνεται σε κύκλο με τον επιβλέποντα\n");
+            }
+        }
+        for (CourseEntry c : enrolledCourses) {
+            if (c.isThesisOrResearch()) {
+                sb.append("  - ").append(c.title).append(" (ΣΕ ΕΞΕΛΙΞΗ) — δηλώνεται σε κύκλο με τον επιβλέποντα\n");
+            }
+        }
+
+        sb.append("\n=== ΤΕΛΟΣ ΑΝΑΛΥΣΗΣ ===\n");
         return sb.toString();
     }
 
     // Build suffix like " (ανήκει και στον Κύκλο 7, 8)" for courses in multiple majors
     private String buildOtherCyclesSuffix(CourseEntry c, int currentMajorId) {
-        if (c.isThesisOrResearch()) {
-            return " (μετράει σε όλους τους κύκλους)";
-        }
         Set<Integer> majors = courseMajorMap.get(c.id);
         if (majors == null || majors.size() <= 1) return "";
 
