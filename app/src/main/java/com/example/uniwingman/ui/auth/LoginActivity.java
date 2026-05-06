@@ -77,15 +77,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void performLogin() {
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
+        String emailStr = emailEditText.getText().toString().trim();
+        String passwordStr = passwordEditText.getText().toString().trim();
 
-        if (email.isEmpty()) {
+        if (emailStr.isEmpty()) {
             showMessage("Παρακαλώ συμπληρώστε το email σας.");
             emailEditText.requestFocus();
             return;
         }
-        if (password.isEmpty()) {
+        if (passwordStr.isEmpty()) {
             showMessage("Παρακαλώ συμπληρώστε τον κωδικό σας.");
             passwordEditText.requestFocus();
             return;
@@ -93,19 +93,20 @@ public class LoginActivity extends AppCompatActivity {
 
         loginButton.setEnabled(false);
 
-        supabaseAuth.login(email, password, new SupabaseAuth.AuthCallback() {
+        supabaseAuth.login(emailStr, passwordStr, new SupabaseAuth.AuthCallback() {
             @Override
             public void onSuccess(String result) {
                 runOnUiThread(() -> {
+                    String parsedUserId = "";
                     try {
                         JsonObject json = JsonParser.parseString(result).getAsJsonObject();
-                        String userId   = json.get("userId").getAsString();
+                        parsedUserId   = json.get("userId").getAsString();
                         String email    = json.get("email").getAsString();
                         String username = json.get("username").getAsString();
 
                         getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
                                 .edit()
-                                .putString("userId",   userId)
+                                .putString("userId",   parsedUserId)
                                 .putString("email",    email)
                                 .putString("username", username)
                                 .apply();
@@ -113,21 +114,40 @@ public class LoginActivity extends AppCompatActivity {
                         // fallback — αποθήκευσε τουλάχιστον το email
                         getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
                                 .edit()
-                                .putString("email", email)
-                                .putString("username", email.split("@")[0])
+                                .putString("email", emailStr)
+                                .putString("username", emailStr.split("@")[0])
                                 .apply();
                     }
 
-                    showMessage("Σύνδεση επιτυχής.");
-                    Intent intent;
-                    if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {
-                        intent = new Intent(LoginActivity.this, OnboardingActivity.class);
-                    } else {
-                        intent = new Intent(LoginActivity.this, MainActivity.class);
-                    }
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
+                    // --- ΕΛΕΓΧΟΣ ADMIN ---
+                    // Αφού αποθηκεύσαμε τα βασικά στοιχεία, ελέγχουμε τον ρόλο του χρήστη
+                    supabaseAuth.checkIfUserIsAdmin(parsedUserId, new SupabaseAuth.AdminCheckCallback() {
+                        @Override
+                        public void onResult(boolean isAdmin) {
+                            runOnUiThread(() -> {
+                                // Αποθήκευση του ρόλου στα SharedPreferences
+                                getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
+                                        .edit()
+                                        .putBoolean("IS_ADMIN", isAdmin)
+                                        .apply();
+
+                                proceedToNextScreen();
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            runOnUiThread(() -> {
+                                // Σε περίπτωση λάθους, θεωρούμε τον χρήστη απλό φοιτητή (false)
+                                getSharedPreferences("UniWingmanPrefs", MODE_PRIVATE)
+                                        .edit()
+                                        .putBoolean("IS_ADMIN", false)
+                                        .apply();
+
+                                proceedToNextScreen();
+                            });
+                        }
+                    });
                 });
             }
 
@@ -139,5 +159,19 @@ public class LoginActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    // Νέα βοηθητική μέθοδος για να μην επαναλαμβάνουμε τον κώδικα αλλαγής οθόνης
+    private void proceedToNextScreen() {
+        showMessage("Σύνδεση επιτυχής.");
+        Intent intent;
+        if (!OnboardingActivity.isOnboardingDone(LoginActivity.this)) {
+            intent = new Intent(LoginActivity.this, OnboardingActivity.class);
+        } else {
+            intent = new Intent(LoginActivity.this, MainActivity.class);
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
