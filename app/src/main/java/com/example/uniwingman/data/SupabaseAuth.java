@@ -288,4 +288,62 @@ public class SupabaseAuth {
     public void resetPassword(String email, AuthCallback callback) {
         callback.onError("Η επαναφορά κωδικού δεν υποστηρίζεται ακόμα.");
     }
+
+    public interface AdminCheckCallback {
+        void onResult(boolean isAdmin);
+        void onError(String error);
+    }
+
+    // for this to work we need to go to the supabase dashboard and add a collumn type:boolean named is_admin
+    public void checkIfUserIsAdmin(String userId, AdminCheckCallback callback) {
+        // --- ΠΡΟΣΩΡΙΝΗ ΛΥΣΗ (MOCK) ---
+        // Εδώ αποφασίζεις αν θες να είσαι admin ή όχι για τις δοκιμές σου.
+        boolean testAsAdmin = true; // Κάντο false όταν θες να δεις την εφαρμογή σαν απλός φοιτητής
+
+        // Προσομοιώνουμε μια μικρή καθυστέρηση μισού δευτερολέπτου για ρεαλισμό
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            callback.onResult(testAsAdmin);
+        }, 500);
+
+
+        /* --- Ο ΚΑΝΟΝΙΚΟΣ ΚΩΔΙΚΑΣ ΣΕ ΣΧΟΛΙΑ (ΓΙΑ ΝΑ ΤΟΝ ΕΧΕΙΣ ΕΤΟΙΜΟ ΜΕΤΑ) ---
+        String fetchUrl = this.url + "/rest/v1/users?id=eq." + userId + "&select=is_admin&limit=1";
+        Request request = new Request.Builder()
+                .url(fetchUrl)
+                .addHeader("apikey", this.apiKey)
+                .addHeader("Authorization", "Bearer " + this.apiKey)
+                .addHeader("Content-Type", "application/json")
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError("Αποτυχία δικτύου: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful() || response.body() == null) {
+                    callback.onError("Σφάλμα διακομιστή: " + response.code());
+                    return;
+                }
+                String responseData = response.body().string();
+                try {
+                    JsonArray arr = JsonParser.parseString(responseData).getAsJsonArray();
+                    if (arr.size() > 0) {
+                        JsonObject row = arr.get(0).getAsJsonObject();
+                        boolean isAdmin = row.has("is_admin") && !row.get("is_admin").isJsonNull()
+                                          && row.get("is_admin").getAsBoolean();
+                        callback.onResult(isAdmin);
+                    } else {
+                        callback.onResult(false);
+                    }
+                } catch (Exception e) {
+                    callback.onError("Σφάλμα ανάλυσης δεδομένων admin.");
+                }
+            }
+        });
+        */
+    }
 }
