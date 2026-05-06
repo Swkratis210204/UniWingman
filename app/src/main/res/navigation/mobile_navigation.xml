@@ -26,4 +26,9 @@
         android:name="com.example.uniwingman.ui.profile.ProfileFragment"
         android:label="Profile" />
 
+    <fragment
+        android:id="@+id/navigation_admin"
+        android:name="com.example.uniwingman.ui.admin.AdminFragment"
+        android:label="Admin Dashboard"
+        tools:layout="@layout/fragment_admin" />
 </navigation>
