@@ -296,8 +296,6 @@ public class SupabaseAuth {
 
     // for this to work we need to go to the supabase dashboard and add a collumn type:boolean named is_admin
     public void checkIfUserIsAdmin(String userId, AdminCheckCallback callback) {
-        // Χρησιμοποιούμε το 'url' και το 'apiKey' που ορίζονται στην αρχή της κλάσης
-        // Ψάχνουμε στον πίνακα 'users' που χρησιμοποιεί ήδη η εφαρμογή
         String fetchUrl = this.url + "/rest/v1/users?id=eq." + userId + "&select=is_admin&limit=1";
 
         Request request = new Request.Builder()
