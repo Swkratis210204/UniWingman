@@ -296,8 +296,18 @@ public class SupabaseAuth {
 
     // for this to work we need to go to the supabase dashboard and add a collumn type:boolean named is_admin
     public void checkIfUserIsAdmin(String userId, AdminCheckCallback callback) {
-        String fetchUrl = this.url + "/rest/v1/users?id=eq." + userId + "&select=is_admin&limit=1";
+        // --- ΠΡΟΣΩΡΙΝΗ ΛΥΣΗ (MOCK) ---
+        // Εδώ αποφασίζεις αν θες να είσαι admin ή όχι για τις δοκιμές σου.
+        boolean testAsAdmin = true; // Κάντο false όταν θες να δεις την εφαρμογή σαν απλός φοιτητής
 
+        // Προσομοιώνουμε μια μικρή καθυστέρηση μισού δευτερολέπτου για ρεαλισμό
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            callback.onResult(testAsAdmin);
+        }, 500);
+
+
+        /* --- Ο ΚΑΝΟΝΙΚΟΣ ΚΩΔΙΚΑΣ ΣΕ ΣΧΟΛΙΑ (ΓΙΑ ΝΑ ΤΟΝ ΕΧΕΙΣ ΕΤΟΙΜΟ ΜΕΤΑ) ---
+        String fetchUrl = this.url + "/rest/v1/users?id=eq." + userId + "&select=is_admin&limit=1";
         Request request = new Request.Builder()
                 .url(fetchUrl)
                 .addHeader("apikey", this.apiKey)
@@ -318,17 +328,13 @@ public class SupabaseAuth {
                     callback.onError("Σφάλμα διακομιστή: " + response.code());
                     return;
                 }
-
                 String responseData = response.body().string();
                 try {
-                    // we use Googles Json parser
                     JsonArray arr = JsonParser.parseString(responseData).getAsJsonArray();
-
                     if (arr.size() > 0) {
                         JsonObject row = arr.get(0).getAsJsonObject();
-                        // we check for a field name: is_admin
                         boolean isAdmin = row.has("is_admin") && !row.get("is_admin").isJsonNull()
-                                && row.get("is_admin").getAsBoolean();
+                                          && row.get("is_admin").getAsBoolean();
                         callback.onResult(isAdmin);
                     } else {
                         callback.onResult(false);
@@ -338,5 +344,6 @@ public class SupabaseAuth {
                 }
             }
         });
+        */
     }
 }
