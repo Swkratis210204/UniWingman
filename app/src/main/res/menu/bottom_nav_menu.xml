@@ -25,4 +25,11 @@
         android:title="Προφίλ"
         android:contentDescription="Προφίλ" />
 
+    <item
+        android:id="@+id/navigation_admin"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="Admin"
+        android:visible="false" />
+    <!-- Το android:visible="false" είναι το κλειδί! Το κρατάει κρυφό από όλους αρχικά. -->
+
 </menu>
