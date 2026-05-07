@@ -4,27 +4,35 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.uniwingman.R;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AdminFragment extends Fragment {
 
     private AdminViewModel adminViewModel;
     private TextView tvTotalUsers;
+    private RecyclerView rvRecentUsers;
+    private AdminUserAdapter userAdapter;
+    private Button btnSendNotification;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Συνδέουμε τον κώδικα με το XML layout που φτιάξαμε
         View root = inflater.inflate(R.layout.fragment_admin, container, false);
 
-        // Βρίσκουμε το TextView με βάση το ID του
         tvTotalUsers = root.findViewById(R.id.tvTotalUsers);
+        rvRecentUsers = root.findViewById(R.id.rvRecentUsers);
+        btnSendNotification = root.findViewById(R.id.btnSendNotification);
 
         return root;
     }
@@ -33,22 +41,46 @@ public class AdminFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Ζητάμε από το Android να μας δώσει το ViewModel αυτής της οθόνης
         adminViewModel = new ViewModelProvider(this).get(AdminViewModel.class);
 
-        // Παρατηρούμε (Observe) τα δεδομένα. Όταν αλλάξουν, θα τρέξει αυτός ο κώδικας
+        // --- ΡΥΘΜΙΣΗ ΤΗΣ ΛΙΣΤΑΣ (RecyclerView) ---
+        // 1. Λέμε στη λίστα να δείχνει τα στοιχεία από πάνω προς τα κάτω
+        rvRecentUsers.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // 2. Δημιουργούμε τον Adapter που φτιάξαμε πριν
+        userAdapter = new AdminUserAdapter();
+        rvRecentUsers.setAdapter(userAdapter);
+
+        // 3. Βάζουμε προσωρινά (Mock) δεδομένα για να δούμε αν δουλεύει το UI
+        loadMockUsers();
+
+        // --- ΠΑΡΑΤΗΡΗΣΗ ΔΕΔΟΜΕΝΩΝ ΑΠΟ ΤΟ VIEWMODEL ---
         adminViewModel.getTotalUsers().observe(getViewLifecycleOwner(), count -> {
             tvTotalUsers.setText(String.valueOf(count));
         });
 
-        // Παρατηρούμε για τυχόν σφάλματα και τα δείχνουμε με ένα Toast (αναδυόμενο μήνυμα)
         adminViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
                 Toast.makeText(getContext(), "Σφάλμα: " + error, Toast.LENGTH_LONG).show();
             }
         });
 
-        // Δίνουμε το σήμα στο ViewModel να ξεκινήσει να φορτώνει τα δεδομένα από το ίντερνετ
+        // Κουμπί δράσης (Mock)
+        btnSendNotification.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Η λειτουργία Push Notification θα προστεθεί σύντομα!", Toast.LENGTH_SHORT).show();
+        });
+
         adminViewModel.loadStatistics();
+    }
+
+    // Μέθοδος για να γεμίσουμε τη λίστα με ψεύτικους χρήστες προσωρινά
+    private void loadMockUsers() {
+        List<AdminUserItem> mockList = new ArrayList<>();
+        mockList.add(new AdminUserItem("maria_p", "maria@aueb.gr"));
+        mockList.add(new AdminUserItem("nikos_k", "nikos.k@gmail.com"));
+        mockList.add(new AdminUserItem("eleni99", "eleni.pappas@yahoo.com"));
+        mockList.add(new AdminUserItem("giorgos_dev", "giorgos.dev@aueb.gr"));
+
+        userAdapter.setUsers(mockList);
     }
 }
