@@ -2,8 +2,12 @@ package com.example.uniwingman.data;
 
 import okhttp3.*;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject; // <-- Νέο import
 import com.google.gson.JsonParser;
 import java.io.IOException;
+import java.util.ArrayList; // <-- Νέο import
+import java.util.List; // <-- Νέο import
+import com.example.uniwingman.ui.admin.AdminUserItem; // <-- Νέο import που φέρνει το μοντέλο μας
 
 public class SupabaseAdmin {
     private final String url;
@@ -26,6 +30,12 @@ public class SupabaseAdmin {
      */
     public interface StatsCallback {
         void onSuccess(int count);
+        void onError(String error);
+    }
+
+    // --- ΝΕΟ INTERFACE ΓΙΑ ΤΗ ΛΙΣΤΑ ΧΡΗΣΤΩΝ ---
+    public interface UserListCallback {
+        void onSuccess(List<AdminUserItem> users);
         void onError(String error);
     }
 
@@ -75,5 +85,51 @@ public class SupabaseAdmin {
             }
         });
         */
+    }
+
+    // --- ΝΕΑ ΜΕΘΟΔΟΣ ΠΟΥ ΤΡΑΒΑΕΙ ΤΟΥΣ ΧΡΗΣΤΕΣ ΑΠΟ ΤΗ ΒΑΣΗ ---
+    public void getRecentUsers(UserListCallback callback) {
+        // Χρησιμοποιούμε το δυναμικό url σου και ζητάμε τα 10 τελευταία
+        String fetchUrl = this.url + "/rest/v1/users?select=username,email&limit=10";
+
+        Request request = new Request.Builder()
+                .url(fetchUrl)
+                .addHeader("apikey", this.apiKey)
+                .addHeader("Authorization", "Bearer " + this.apiKey)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String responseData = response.body().string();
+                    try {
+                        // Μετατρέπουμε το JSON String σε λίστα από AdminUserItem
+                        JsonArray jsonArray = JsonParser.parseString(responseData).getAsJsonArray();
+                        List<AdminUserItem> users = new ArrayList<>();
+                        for (int i = 0; i < jsonArray.size(); i++) {
+                            JsonObject obj = jsonArray.get(i).getAsJsonObject();
+
+                            // Έλεγχος μήπως το username ή το email είναι null στη βάση
+                            String name = obj.has("username") && !obj.get("username").isJsonNull() ? obj.get("username").getAsString() : "Unknown";
+                            String email = obj.has("email") && !obj.get("email").isJsonNull() ? obj.get("email").getAsString() : "No Email";
+
+                            users.add(new AdminUserItem(name, email));
+                        }
+                        callback.onSuccess(users);
+                    } catch (Exception e) {
+                        callback.onError("Parsing error: " + e.getMessage());
+                    }
+                } else {
+                    callback.onError("Error: " + response.code());
+                }
+            }
+        });
     }
 }
