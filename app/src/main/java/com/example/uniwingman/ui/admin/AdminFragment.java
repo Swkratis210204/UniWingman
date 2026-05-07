@@ -14,8 +14,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.uniwingman.R;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AdminFragment extends Fragment {
 
@@ -43,44 +41,38 @@ public class AdminFragment extends Fragment {
 
         adminViewModel = new ViewModelProvider(this).get(AdminViewModel.class);
 
-        // --- ΡΥΘΜΙΣΗ ΤΗΣ ΛΙΣΤΑΣ (RecyclerView) ---
-        // 1. Λέμε στη λίστα να δείχνει τα στοιχεία από πάνω προς τα κάτω
+        // --- ΡΥΘΜΙΣΗ ΤΗΣ ΛΙΣΤΑΣ ---
         rvRecentUsers.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // 2. Δημιουργούμε τον Adapter που φτιάξαμε πριν
         userAdapter = new AdminUserAdapter();
         rvRecentUsers.setAdapter(userAdapter);
 
-        // 3. Βάζουμε προσωρινά (Mock) δεδομένα για να δούμε αν δουλεύει το UI
-        loadMockUsers();
-
         // --- ΠΑΡΑΤΗΡΗΣΗ ΔΕΔΟΜΕΝΩΝ ΑΠΟ ΤΟ VIEWMODEL ---
+
+        // 1. Παρατήρηση του συνολικού αριθμού χρηστών
         adminViewModel.getTotalUsers().observe(getViewLifecycleOwner(), count -> {
             tvTotalUsers.setText(String.valueOf(count));
         });
 
-        adminViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
-                Toast.makeText(getContext(), "Σφάλμα: " + error, Toast.LENGTH_LONG).show();
+        // 2. ΝΕΟ: Παρατήρηση της πραγματικής λίστας χρηστών από τη Βάση
+        adminViewModel.getRecentUsers().observe(getViewLifecycleOwner(), users -> {
+            if (users != null) {
+                userAdapter.setUsers(users); // Δίνουμε τους πραγματικούς χρήστες στον Adapter!
             }
         });
 
-        // Κουμπί δράσης (Mock)
+        // 3. Παρατήρηση για τυχόν σφάλματα δικτύου
+        adminViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        // Κουμπί δράσης
         btnSendNotification.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Η λειτουργία Push Notification θα προστεθεί σύντομα!", Toast.LENGTH_SHORT).show();
         });
 
+        // Ξεκινάμε τη φόρτωση όλων των στατιστικών!
         adminViewModel.loadStatistics();
-    }
-
-    // Μέθοδος για να γεμίσουμε τη λίστα με ψεύτικους χρήστες προσωρινά
-    private void loadMockUsers() {
-        List<AdminUserItem> mockList = new ArrayList<>();
-        mockList.add(new AdminUserItem("maria_p", "maria@aueb.gr"));
-        mockList.add(new AdminUserItem("nikos_k", "nikos.k@gmail.com"));
-        mockList.add(new AdminUserItem("eleni99", "eleni.pappas@yahoo.com"));
-        mockList.add(new AdminUserItem("giorgos_dev", "giorgos.dev@aueb.gr"));
-
-        userAdapter.setUsers(mockList);
     }
 }
