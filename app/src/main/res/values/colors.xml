@@ -16,5 +16,7 @@
     <color name="profile_text_muted">#8B949E</color>
     <color name="profile_green">#4CAF50</color>
     <color name="profile_red">#E24B4A</color>
-    <color name="profile_orange">#FF6B35</color>Σ
+    <color name="profile_orange">#FF6B35</color>
+    <color name="teal_vibrant_accent">#31DDC1</color>
+    <color name="teal_subtle_background">#E0F2F1</color>
 </resources>
