@@ -45,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
+        // --- ΑΥΤΟΜΑΤΟ ΑΝΟΙΓΜΑ ADMIN TAB (Αν ήρθε από Login) ---
+        if (getIntent().getBooleanExtra("OPEN_ADMIN_TAB", false)) {
+            binding.navView.setSelectedItemId(R.id.navigation_admin);
+        }
+
         // Accessibility: Add haptic feedback and announcements on tab selection
         binding.navView.setOnItemSelectedListener(item -> {
             // Δόνηση για επιβεβαίωση πατήματος (χρήσιμο για τυφλούς χρήστες)
