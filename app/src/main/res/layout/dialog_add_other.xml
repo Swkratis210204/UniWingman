@@ -6,9 +6,16 @@
     android:padding="16dp">
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="Μάθημα" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-    <Spinner android:id="@+id/spinnerCourse" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:layout_marginBottom="12dp"/>
+        android:text="Τίτλος" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+    <EditText android:id="@+id/etTitle" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="π.χ. Γυμναστική"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Σχόλιο" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+    <EditText android:id="@+id/etComment" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="Προαιρετικό"
+        android:layout_marginBottom="12dp"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:text="Ημέρα" android:textStyle="bold" android:layout_marginBottom="4dp"/>
@@ -23,15 +30,5 @@
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:text="Ώρα Λήξης" android:textStyle="bold" android:layout_marginBottom="4dp"/>
     <Spinner android:id="@+id/spinnerEnd" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:layout_marginBottom="12dp"/>
-
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="Τύπος" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-    <Spinner android:id="@+id/spinnerType" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:layout_marginBottom="12dp"/>
-
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="Αίθουσα" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-    <EditText android:id="@+id/etRoom" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:hint="π.χ. Α47"/>
+        android:layout_height="wrap_content"/>
 </LinearLayout>

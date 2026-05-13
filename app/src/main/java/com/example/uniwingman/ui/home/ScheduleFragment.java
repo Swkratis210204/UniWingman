@@ -8,41 +8,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import com.example.uniwingman.databinding.FragmentHomeBinding;
-
+import com.example.uniwingman.R;
+import com.example.uniwingman.databinding.FragmentScheduleBinding;
 import java.util.Calendar;
 import java.util.List;
 
-public class HomeFragment extends Fragment {
+public class ScheduleFragment extends Fragment {
 
-    private FragmentHomeBinding binding;
-    private HomeViewModel homeViewModel;
-    private ScheduleViewModel scheduleViewModel;
+    private FragmentScheduleBinding binding;
+    private ScheduleViewModel viewModel;
 
     private static final String[] DAYS = {"Δευτέρα","Τρίτη","Τετάρτη","Πέμπτη","Παρασκευή"};
     private static final String[] DAYS_SHORT = {"Δευ","Τρι","Τετ","Πεμ","Παρ"};
     private int selectedDayIndex = 0;
-    private Button[] dayTabs;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
-        homeViewModel     = new ViewModelProvider(this).get(HomeViewModel.class);
-        scheduleViewModel = new ViewModelProvider(this).get(ScheduleViewModel.class);
+        binding = FragmentScheduleBinding.inflate(inflater, container, false);
+        viewModel = new ViewModelProvider(this).get(ScheduleViewModel.class);
 
         SharedPreferences prefs = requireActivity()
                 .getSharedPreferences("UniWingmanPrefs", Context.MODE_PRIVATE);
-        String username = prefs.getString("username", "Φοιτητή");
-        String userId   = prefs.getString("userId", null);
-
-        binding.tvWelcome.setText("Καλωσόρισες, " + username);
+        String userId = prefs.getString("userId", null);
 
         int dow = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
         if (dow == Calendar.TUESDAY)        selectedDayIndex = 1;
@@ -51,48 +42,42 @@ public class HomeFragment extends Fragment {
         else if (dow == Calendar.FRIDAY)    selectedDayIndex = 4;
         else                                selectedDayIndex = 0;
 
-        binding.rvTasks.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.rvNotifications.setLayoutManager(new LinearLayoutManager(getContext()));
-
         setupDayTabs();
         setupAddButton();
-        observeViewModels();
+        observeViewModel();
 
-        if (userId != null) {
-            homeViewModel.load(userId);
-            scheduleViewModel.load(userId);
-        }
+        if (userId != null) viewModel.load(userId);
 
         return binding.getRoot();
     }
 
     private void setupDayTabs() {
-        dayTabs = new Button[]{
+        Button[] tabs = {
                 binding.btnDayMon, binding.btnDayTue, binding.btnDayWed,
                 binding.btnDayThu, binding.btnDayFri
         };
-        for (int i = 0; i < dayTabs.length; i++) {
+        for (int i = 0; i < tabs.length; i++) {
             final int idx = i;
-            dayTabs[i].setText(DAYS_SHORT[i]);
-            dayTabs[i].setOnClickListener(v -> {
+            tabs[i].setText(DAYS_SHORT[i]);
+            tabs[i].setOnClickListener(v -> {
                 selectedDayIndex = idx;
-                updateDaySelection(idx);
-                scheduleViewModel.selectDay(DAYS[idx]);
+                updateDaySelection(tabs, idx);
+                viewModel.selectDay(DAYS[idx]);
             });
         }
-        updateDaySelection(selectedDayIndex);
-        scheduleViewModel.selectDay(DAYS[selectedDayIndex]);
+        updateDaySelection(tabs, selectedDayIndex);
+        viewModel.selectDay(DAYS[selectedDayIndex]);
     }
 
-    private void updateDaySelection(int selected) {
-        for (int i = 0; i < dayTabs.length; i++) {
-            dayTabs[i].setBackgroundColor(i == selected ? 0xFF185FA5 : 0xFFEEEEEE);
-            dayTabs[i].setTextColor(i == selected ? 0xFFFFFFFF : 0xFF444444);
+    private void updateDaySelection(Button[] tabs, int selected) {
+        for (int i = 0; i < tabs.length; i++) {
+            tabs[i].setBackgroundColor(i == selected ? 0xFF185FA5 : 0xFFEEEEEE);
+            tabs[i].setTextColor(i == selected ? 0xFFFFFFFF : 0xFF444444);
         }
     }
 
     private void setupAddButton() {
-        binding.btnAddSchedule.setOnClickListener(v -> showAddDialog());
+        binding.btnAdd.setOnClickListener(v -> showAddDialog());
     }
 
     private void showAddDialog() {
@@ -107,18 +92,19 @@ public class HomeFragment extends Fragment {
 
     private void showAddCourseDialog() {
         View v = LayoutInflater.from(requireContext())
-                .inflate(com.example.uniwingman.R.layout.dialog_add_course, null);
+                .inflate(R.layout.dialog_add_course, null);
 
-        Spinner spinnerCourse = v.findViewById(com.example.uniwingman.R.id.spinnerCourse);
-        Spinner spinnerDay    = v.findViewById(com.example.uniwingman.R.id.spinnerDay);
-        Spinner spinnerStart  = v.findViewById(com.example.uniwingman.R.id.spinnerStart);
-        Spinner spinnerEnd    = v.findViewById(com.example.uniwingman.R.id.spinnerEnd);
-        Spinner spinnerType   = v.findViewById(com.example.uniwingman.R.id.spinnerType);
-        EditText etRoom       = v.findViewById(com.example.uniwingman.R.id.etRoom);
+        Spinner spinnerCourse = v.findViewById(R.id.spinnerCourse);
+        Spinner spinnerDay    = v.findViewById(R.id.spinnerDay);
+        Spinner spinnerStart  = v.findViewById(R.id.spinnerStart);
+        Spinner spinnerEnd    = v.findViewById(R.id.spinnerEnd);
+        Spinner spinnerType   = v.findViewById(R.id.spinnerType);
+        EditText etRoom       = v.findViewById(R.id.etRoom);
 
-        scheduleViewModel.getAllCourses().observe(getViewLifecycleOwner(), courses -> {
+        viewModel.getAllCourses().observe(getViewLifecycleOwner(), courses -> {
             if (courses == null) return;
-            String[] names = courses.stream().map(c -> c.title).toArray(String[]::new);
+            String[] names = courses.stream()
+                    .map(c -> c.title).toArray(String[]::new);
             spinnerCourse.setAdapter(new ArrayAdapter<>(requireContext(),
                     android.R.layout.simple_spinner_dropdown_item, names));
         });
@@ -141,15 +127,17 @@ public class HomeFragment extends Fragment {
                 .setTitle("Προσθήκη Μαθήματος")
                 .setView(v)
                 .setPositiveButton("Προσθήκη", (d, w) -> {
-                    List<CourseItem> courses = scheduleViewModel.getAllCourses().getValue();
+                    List<CourseItem> courses = viewModel.getAllCourses().getValue();
                     if (courses == null || courses.isEmpty()) return;
+
                     CourseItem selected = courses.get(spinnerCourse.getSelectedItemPosition());
                     String day  = DAYS[spinnerDay.getSelectedItemPosition()];
                     int start   = Integer.parseInt(hours[spinnerStart.getSelectedItemPosition()]);
                     int end     = Integer.parseInt(hours[spinnerEnd.getSelectedItemPosition()]);
                     String type = types[spinnerType.getSelectedItemPosition()];
                     String room = etRoom.getText().toString().trim();
-                    scheduleViewModel.addUserSlot(new UserSlot(
+
+                    viewModel.addUserSlot(new UserSlot(
                             selected.title, day, start, end, type, room, false));
                 })
                 .setNegativeButton("Άκυρο", null)
@@ -158,13 +146,13 @@ public class HomeFragment extends Fragment {
 
     private void showAddOtherDialog() {
         View v = LayoutInflater.from(requireContext())
-                .inflate(com.example.uniwingman.R.layout.dialog_add_other, null);
+                .inflate(R.layout.dialog_add_other, null);
 
-        EditText etTitle     = v.findViewById(com.example.uniwingman.R.id.etTitle);
-        EditText etComment   = v.findViewById(com.example.uniwingman.R.id.etComment);
-        Spinner spinnerDay   = v.findViewById(com.example.uniwingman.R.id.spinnerDay);
-        Spinner spinnerStart = v.findViewById(com.example.uniwingman.R.id.spinnerStart);
-        Spinner spinnerEnd   = v.findViewById(com.example.uniwingman.R.id.spinnerEnd);
+        EditText etTitle     = v.findViewById(R.id.etTitle);
+        EditText etComment   = v.findViewById(R.id.etComment);
+        Spinner spinnerDay   = v.findViewById(R.id.spinnerDay);
+        Spinner spinnerStart = v.findViewById(R.id.spinnerStart);
+        Spinner spinnerEnd   = v.findViewById(R.id.spinnerEnd);
 
         spinnerDay.setAdapter(new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_dropdown_item, DAYS));
@@ -185,41 +173,23 @@ public class HomeFragment extends Fragment {
                     String day     = DAYS[spinnerDay.getSelectedItemPosition()];
                     int start      = Integer.parseInt(hours[spinnerStart.getSelectedItemPosition()]);
                     int end        = Integer.parseInt(hours[spinnerEnd.getSelectedItemPosition()]);
+
                     if (title.isEmpty()) return;
-                    scheduleViewModel.addUserSlot(new UserSlot(
+                    viewModel.addUserSlot(new UserSlot(
                             title, day, start, end, "Άλλο", comment, true));
                 })
                 .setNegativeButton("Άκυρο", null)
                 .show();
     }
 
-    private void observeViewModels() {
-        homeViewModel.getGpa().observe(getViewLifecycleOwner(), gpa ->
-                binding.tvGpa.setText(gpa != null ? gpa : "—"));
-
-        homeViewModel.getStreak().observe(getViewLifecycleOwner(), streak ->
-                binding.tvStreak.setText(streak != null ? String.valueOf(streak) : "0"));
-
-        scheduleViewModel.getCurrentDaySlots().observe(getViewLifecycleOwner(), rows -> {
+    private void observeViewModel() {
+        viewModel.getCurrentDaySlots().observe(getViewLifecycleOwner(), rows -> {
             if (rows == null) return;
             binding.scheduleContainer.removeAllViews();
             for (SlotRow row : rows) {
-                binding.scheduleContainer.addView(buildSlotRow(row));
-                // Separator μεταξύ rows
-                View sep = new View(requireContext());
-                sep.setBackgroundColor(0xFFF0F0F0);
-                sep.setLayoutParams(new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, 1));
-                binding.scheduleContainer.addView(sep);
+                View rowView = buildSlotRow(row);
+                binding.scheduleContainer.addView(rowView);
             }
-        });
-
-        homeViewModel.getTasks().observe(getViewLifecycleOwner(), tasks -> {
-            if (tasks != null) binding.rvTasks.setAdapter(new TaskAdapter(tasks));
-        });
-
-        homeViewModel.getNotifications().observe(getViewLifecycleOwner(), notifs -> {
-            if (notifs != null) binding.rvNotifications.setAdapter(new NotificationAdapter(notifs));
         });
     }
 
@@ -227,32 +197,23 @@ public class HomeFragment extends Fragment {
         LinearLayout rowLayout = new LinearLayout(requireContext());
         rowLayout.setOrientation(LinearLayout.HORIZONTAL);
         rowLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        rowLayout.setPadding(0, 8, 0, 8);
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        rowLayout.setPadding(0, 4, 0, 4);
 
-        // Ώρα — πλατύτερο για να μη πατιέται
         TextView tvTime = new TextView(requireContext());
-        tvTime.setText(row.startHour + ":00\n" + row.endHour + ":00");
-        tvTime.setTextSize(12);
-        tvTime.setTextColor(0xFF666666);
+        tvTime.setText(formatTime(row.startHour) + "\n" + formatTime(row.endHour));
+        tvTime.setTextSize(11);
+        tvTime.setTextColor(0xFF888888);
         tvTime.setGravity(android.view.Gravity.CENTER);
-        tvTime.setTypeface(null, android.graphics.Typeface.BOLD);
-        LinearLayout.LayoutParams timeParams = new LinearLayout.LayoutParams(
-                dpToPx(52), ViewGroup.LayoutParams.MATCH_PARENT);
-        timeParams.setMargins(0, 0, dpToPx(8), 0);
-        tvTime.setLayoutParams(timeParams);
+        tvTime.setLayoutParams(new LinearLayout.LayoutParams(56, ViewGroup.LayoutParams.MATCH_PARENT));
         rowLayout.addView(tvTime);
 
-        // Κάθετη γραμμή
         View line = new View(requireContext());
-        line.setBackgroundColor(0xFFCCCCCC);
-        LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(
-                dpToPx(1), ViewGroup.LayoutParams.MATCH_PARENT);
-        lineParams.setMargins(0, 0, dpToPx(8), 0);
-        line.setLayoutParams(lineParams);
+        line.setBackgroundColor(0xFFDDDDDD);
+        line.setLayoutParams(new LinearLayout.LayoutParams(1, ViewGroup.LayoutParams.MATCH_PARENT));
         rowLayout.addView(line);
 
-        // Cards — όλα ίδιο πλάτος με layout_weight
         LinearLayout slotsLayout = new LinearLayout(requireContext());
         slotsLayout.setOrientation(LinearLayout.HORIZONTAL);
         slotsLayout.setLayoutParams(new LinearLayout.LayoutParams(
@@ -260,74 +221,60 @@ public class HomeFragment extends Fragment {
 
         for (SlotCard card : row.cards) {
             View cardView = buildCard(card);
-            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-            p.setMargins(0, 0, dpToPx(4), 0);
-            cardView.setLayoutParams(p);
+            cardParams.setMargins(4, 0, 4, 0);
+            cardView.setLayoutParams(cardParams);
             slotsLayout.addView(cardView);
         }
         rowLayout.addView(slotsLayout);
+
         return rowLayout;
     }
 
     private View buildCard(SlotCard card) {
         LinearLayout layout = new LinearLayout(requireContext());
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(dpToPx(10), dpToPx(8), dpToPx(10), dpToPx(8));
+        layout.setPadding(12, 10, 12, 10);
         layout.setBackgroundColor(card.color);
 
-        // Όνομα μαθήματος
         TextView tvName = new TextView(requireContext());
         tvName.setText(card.name);
         tvName.setTextColor(0xFFFFFFFF);
         tvName.setTextSize(12);
         tvName.setTypeface(null, android.graphics.Typeface.BOLD);
-        tvName.setLineSpacing(0, 1.1f);
         layout.addView(tvName);
 
-        // Αίθουσα — χωρίς emoji
         if (card.room != null && !card.room.isEmpty()) {
             TextView tvRoom = new TextView(requireContext());
-            tvRoom.setText(card.room);
-            tvRoom.setTextColor(0xCCFFFFFF);
-            tvRoom.setTextSize(11);
-            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            rp.topMargin = dpToPx(3);
-            tvRoom.setLayoutParams(rp);
+            tvRoom.setText("📍 " + card.room);
+            tvRoom.setTextColor(0xDDFFFFFF);
+            tvRoom.setTextSize(10);
             layout.addView(tvRoom);
         }
 
-        // Τύπος badge
         TextView tvType = new TextView(requireContext());
         tvType.setText(card.type);
         tvType.setTextColor(0xFFFFFFFF);
         tvType.setTextSize(10);
-        tvType.setBackgroundColor(0x44000000);
-        tvType.setPadding(dpToPx(5), dpToPx(2), dpToPx(5), dpToPx(2));
-        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        tp.topMargin = dpToPx(4);
-        tvType.setLayoutParams(tp);
+        tvType.setBackgroundColor(0x33000000);
+        tvType.setPadding(6, 2, 6, 2);
         layout.addView(tvType);
 
-        // Διαγραφή για user slots
         if (card.isDeletable) {
             TextView tvDelete = new TextView(requireContext());
-            tvDelete.setText("✕ Διαγραφή");
+            tvDelete.setText("✕");
             tvDelete.setTextColor(0xFFFFFFFF);
-            tvDelete.setTextSize(10);
-            tvDelete.setPadding(0, dpToPx(4), 0, 0);
-            tvDelete.setOnClickListener(vv -> scheduleViewModel.deleteUserSlot(card.slotId));
+            tvDelete.setTextSize(14);
+            tvDelete.setPadding(0, 4, 0, 0);
+            tvDelete.setOnClickListener(vv -> viewModel.deleteUserSlot(card.slotId));
             layout.addView(tvDelete);
         }
+
         return layout;
     }
 
-    private int dpToPx(int dp) {
-        float density = requireContext().getResources().getDisplayMetrics().density;
-        return Math.round(dp * density);
-    }
+    private String formatTime(int h) { return h + ":00"; }
 
     @Override
     public void onDestroyView() {

@@ -185,7 +185,7 @@ public class AddCourseActivity extends AppCompatActivity {
         String[] statuses     = {"Σε Εξέλιξη", "Περασμένο", "Κομμένο"};
         String[] statusValues = {"in_progress", "passed", "failed"};
 
-        View dialogView       = getLayoutInflater().inflate(R.layout.dialog_add_course, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_course_profile, null);
         Spinner spinnerStatus = dialogView.findViewById(R.id.dialogSpinnerStatus);
         EditText etGrade      = dialogView.findViewById(R.id.dialogEtGrade);
 
