@@ -2,12 +2,12 @@ package com.example.uniwingman.data;
 
 import okhttp3.*;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject; // <-- Νέο import
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.util.ArrayList; // <-- Νέο import
-import java.util.List; // <-- Νέο import
-import com.example.uniwingman.ui.admin.AdminUserItem; // <-- Νέο import που φέρνει το μοντέλο μας
+import java.util.ArrayList;
+import java.util.List;
+import com.example.uniwingman.ui.admin.AdminUserItem;
 
 public class SupabaseAdmin {
     private final String url;
@@ -15,7 +15,7 @@ public class SupabaseAdmin {
     private final OkHttpClient client;
 
     public SupabaseAdmin() {
-        // Use the same logic as SupabaseAuth to load credentials from the .env file
+        // Φόρτωση κλειδιών από το .env αρχείο
         io.github.cdimascio.dotenv.Dotenv dotenv = io.github.cdimascio.dotenv.Dotenv.configure()
                 .directory("./assets")
                 .filename("env")
@@ -26,36 +26,36 @@ public class SupabaseAdmin {
     }
 
     /**
-     * Callback interface to return statistics to the ViewModel
+     * Callback interface για τα στατιστικά (συνολικός αριθμός)
      */
     public interface StatsCallback {
         void onSuccess(int count);
         void onError(String error);
     }
 
-    // --- ΝΕΟ INTERFACE ΓΙΑ ΤΗ ΛΙΣΤΑ ΧΡΗΣΤΩΝ ---
+    /**
+     * Callback interface για τη λίστα χρηστών
+     */
     public interface UserListCallback {
         void onSuccess(List<AdminUserItem> users);
         void onError(String error);
     }
 
     /**
-     * Method to count the total number of users in the system
+     * Μετράει τον συνολικό αριθμό των χρηστών στο σύστημα (Χωρίς να κατεβάζει τα δεδομένα τους)
      */
     public void getTotalUserCount(StatsCallback callback) {
-        // --- ΠΡΟΣΩΡΙΝΗ ΛΥΣΗ (MOCK) ---
-        // Επιστρέφουμε έναν τυχαίο αριθμό (π.χ. 142) για να δούμε αν το UI δουλεύει σωστά
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            callback.onSuccess(142);
-        }, 500);
+        // Ζητάμε μόνο το id και λέμε στο Supabase να επιστρέψει 0 γραμμές (Range: 0-0)
+        // αλλά να υπολογίσει το ακριβές σύνολο στα Headers (count=exact).
+        String fetchUrl = this.url + "/rest/v1/users?select=id";
 
-        /* --- Ο ΚΑΝΟΝΙΚΟΣ ΚΩΔΙΚΑΣ ΣΕ ΣΧΟΛΙΑ ---
-        String fetchUrl = this.url + "/rest/v1/users?select=count";
         Request request = new Request.Builder()
                 .url(fetchUrl)
                 .addHeader("apikey", this.apiKey)
                 .addHeader("Authorization", "Bearer " + this.apiKey)
                 .addHeader("Prefer", "count=exact")
+                .addHeader("Range-Unit", "items")
+                .addHeader("Range", "0-0") // Το μυστικό για μηδενική κατανάλωση data!
                 .get()
                 .build();
 
@@ -68,29 +68,79 @@ public class SupabaseAdmin {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    String range = response.header("content-range");
+                    // Το Supabase επιστρέφει το σύνολο στο header "Content-Range" (π.χ. "0-0/152")
+                    String range = response.header("Content-Range");
                     if (range != null && range.contains("/")) {
                         try {
                             int count = Integer.parseInt(range.split("/")[1]);
                             callback.onSuccess(count);
                         } catch (Exception e) {
-                            callback.onError("Parsing error: " + e.getMessage());
+                            callback.onError("Σφάλμα ανάγνωσης αριθμού: " + e.getMessage());
                         }
                     } else {
                         callback.onSuccess(0);
                     }
                 } else {
-                    callback.onError("Error code: " + response.code());
+                    callback.onError("Σφάλμα κωδικός: " + response.code());
                 }
+                response.close(); // Σημαντικό να κλείνουμε το response
             }
         });
-        */
     }
 
-    // --- ΝΕΑ ΜΕΘΟΔΟΣ ΠΟΥ ΤΡΑΒΑΕΙ ΤΟΥΣ ΧΡΗΣΤΕΣ ΑΠΟ ΤΗ ΒΑΣΗ ---
+    /**
+     * Μετράει τον συνολικό αριθμό των μαθημάτων (Courses) στη βάση
+     */
+    public void getTotalCoursesCount(StatsCallback callback) {
+        // Χτυπάμε τον πίνακα "courses" και ζητάμε ακριβή μέτρηση (count=exact)
+        // με μηδενική επιστροφή δεδομένων (Range: 0-0)
+        String fetchUrl = this.url + "/rest/v1/courses?select=id";
+
+        Request request = new Request.Builder()
+                .url(fetchUrl)
+                .addHeader("apikey", this.apiKey)
+                .addHeader("Authorization", "Bearer " + this.apiKey)
+                .addHeader("Prefer", "count=exact")
+                .addHeader("Range-Unit", "items")
+                .addHeader("Range", "0-0") // Το μυστικό για μηδενική κατανάλωση
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    // Το Supabase επιστρέφει το σύνολο στο header "Content-Range" (π.χ. "0-0/62")
+                    String range = response.header("Content-Range");
+                    if (range != null && range.contains("/")) {
+                        try {
+                            int count = Integer.parseInt(range.split("/")[1]);
+                            callback.onSuccess(count);
+                        } catch (Exception e) {
+                            callback.onError("Σφάλμα ανάγνωσης αριθμού μαθημάτων: " + e.getMessage());
+                        }
+                    } else {
+                        callback.onSuccess(0);
+                    }
+                } else {
+                    callback.onError("Σφάλμα κωδικός: " + response.code());
+                }
+                response.close();
+            }
+        });
+    }
+
+    /**
+     * Τραβάει τους πιο πρόσφατους χρήστες από τη βάση
+     */
     public void getRecentUsers(UserListCallback callback) {
-        // Χρησιμοποιούμε το δυναμικό url σου και ζητάμε τα 10 τελευταία
-        String fetchUrl = this.url + "/rest/v1/users?select=username,email&limit=10";
+        // Ζητάμε τα username και email, ταξινομημένα κατά ID φθίνουσα, με όριο 3 εγγραφές
+        String fetchUrl = this.url + "/rest/v1/users?select=username,email&order=id.desc&limit=3";
 
         Request request = new Request.Builder()
                 .url(fetchUrl)
@@ -110,13 +160,11 @@ public class SupabaseAdmin {
                 if (response.isSuccessful() && response.body() != null) {
                     String responseData = response.body().string();
                     try {
-                        // Μετατρέπουμε το JSON String σε λίστα από AdminUserItem
                         JsonArray jsonArray = JsonParser.parseString(responseData).getAsJsonArray();
                         List<AdminUserItem> users = new ArrayList<>();
                         for (int i = 0; i < jsonArray.size(); i++) {
                             JsonObject obj = jsonArray.get(i).getAsJsonObject();
 
-                            // Έλεγχος μήπως το username ή το email είναι null στη βάση
                             String name = obj.has("username") && !obj.get("username").isJsonNull() ? obj.get("username").getAsString() : "Unknown";
                             String email = obj.has("email") && !obj.get("email").isJsonNull() ? obj.get("email").getAsString() : "No Email";
 
@@ -124,10 +172,62 @@ public class SupabaseAdmin {
                         }
                         callback.onSuccess(users);
                     } catch (Exception e) {
-                        callback.onError("Parsing error: " + e.getMessage());
+                        callback.onError("Σφάλμα επεξεργασίας δεδομένων: " + e.getMessage());
                     }
                 } else {
-                    callback.onError("Error: " + response.code());
+                    callback.onError("Σφάλμα: " + response.code());
+                }
+                if (response.body() != null) {
+                    response.body().close();
+                }
+            }
+        });
+    }
+
+    /**
+     * Ψάχνει χρήστες με βάση το όνομά τους (username)
+     */
+    public void searchUsers(String query, UserListCallback callback) {
+        // Χρησιμοποιούμε το ilike.*λέξη* για να βρει όσα usernames περιέχουν το κείμενο που γράψαμε
+        String fetchUrl = this.url + "/rest/v1/users?select=username,email&username=ilike.*" + query + "*";
+
+        Request request = new Request.Builder()
+                .url(fetchUrl)
+                .addHeader("apikey", this.apiKey)
+                .addHeader("Authorization", "Bearer " + this.apiKey)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String responseData = response.body().string();
+                    try {
+                        JsonArray jsonArray = JsonParser.parseString(responseData).getAsJsonArray();
+                        List<AdminUserItem> users = new ArrayList<>();
+                        for (int i = 0; i < jsonArray.size(); i++) {
+                            JsonObject obj = jsonArray.get(i).getAsJsonObject();
+
+                            String name = obj.has("username") && !obj.get("username").isJsonNull() ? obj.get("username").getAsString() : "Unknown";
+                            String email = obj.has("email") && !obj.get("email").isJsonNull() ? obj.get("email").getAsString() : "No Email";
+
+                            users.add(new AdminUserItem(name, email));
+                        }
+                        callback.onSuccess(users);
+                    } catch (Exception e) {
+                        callback.onError("Σφάλμα επεξεργασίας δεδομένων: " + e.getMessage());
+                    }
+                } else {
+                    callback.onError("Σφάλμα: " + response.code());
+                }
+                if (response.body() != null) {
+                    response.body().close();
                 }
             }
         });

@@ -1,10 +1,14 @@
 package com.example.uniwingman.ui.admin;
 
+import android.app.AlertDialog; // ΝΕΟ import για το αναδυόμενο παράθυρο
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -22,6 +26,12 @@ public class AdminFragment extends Fragment {
     private RecyclerView rvRecentUsers;
     private AdminUserAdapter userAdapter;
     private Button btnSendNotification;
+    private Button btnGeneralStats; // ΝΕΟ: Το κουμπί των στατιστικών
+    private EditText etSearchUser;
+
+    // Μεταβλητές για να κρατάμε τα νούμερα και να τα δείχνουμε στο Dialog
+    private int currentTotalUsers = 0;
+    private int currentTotalCourses = 0;
 
     @Nullable
     @Override
@@ -31,6 +41,8 @@ public class AdminFragment extends Fragment {
         tvTotalUsers = root.findViewById(R.id.tvTotalUsers);
         rvRecentUsers = root.findViewById(R.id.rvRecentUsers);
         btnSendNotification = root.findViewById(R.id.btnSendNotification);
+        btnGeneralStats = root.findViewById(R.id.btnGeneralStats); // Αρχικοποίηση νέου κουμπιού
+        etSearchUser = root.findViewById(R.id.etSearchUser);
 
         return root;
     }
@@ -50,29 +62,78 @@ public class AdminFragment extends Fragment {
 
         // 1. Παρατήρηση του συνολικού αριθμού χρηστών
         adminViewModel.getTotalUsers().observe(getViewLifecycleOwner(), count -> {
+            currentTotalUsers = count; // Το κρατάμε στη μνήμη για το Dialog
             tvTotalUsers.setText(String.valueOf(count));
         });
 
-        // 2. ΝΕΟ: Παρατήρηση της πραγματικής λίστας χρηστών από τη Βάση
+        // 2. ΝΕΟ: Παρατήρηση του συνολικού αριθμού μαθημάτων
+        adminViewModel.getTotalCourses().observe(getViewLifecycleOwner(), count -> {
+            currentTotalCourses = count; // Το κρατάμε στη μνήμη για το Dialog
+        });
+
+        // 3. Παρατήρηση της πραγματικής λίστας χρηστών
         adminViewModel.getRecentUsers().observe(getViewLifecycleOwner(), users -> {
             if (users != null) {
-                userAdapter.setUsers(users); // Δίνουμε τους πραγματικούς χρήστες στον Adapter!
+                userAdapter.setUsers(users);
             }
         });
 
-        // 3. Παρατήρηση για τυχόν σφάλματα δικτύου
+        // 4. Σφάλματα δικτύου
         adminViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
                 Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
             }
         });
 
-        // Κουμπί δράσης
+        // --- ΛΟΓΙΚΗ ΑΝΑΖΗΤΗΣΗΣ (TEXT WATCHER) ---
+        etSearchUser.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString().trim();
+                if (query.isEmpty()) {
+                    adminViewModel.loadStatistics();
+                } else {
+                    adminViewModel.searchUser(query);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        // --- ΚΟΥΜΠΙΑ ΔΡΑΣΕΩΝ ---
+
         btnSendNotification.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Η λειτουργία Push Notification θα προστεθεί σύντομα!", Toast.LENGTH_SHORT).show();
         });
 
+        // ΝΕΟ: Όταν πατάμε τα Στατιστικά, ανοίγει το Dialog!
+        btnGeneralStats.setOnClickListener(v -> {
+            showStatisticsDialog();
+        });
+
         // Ξεκινάμε τη φόρτωση όλων των στατιστικών!
         adminViewModel.loadStatistics();
+    }
+
+    /**
+     * Εμφανίζει ένα αναδυόμενο παράθυρο (AlertDialog) με τα γενικά στατιστικά
+     */
+    private void showStatisticsDialog() {
+        // Διαμορφώνουμε το κείμενο που θα φαίνεται
+        String statsMessage = "📊 Εγγεγραμμένοι Φοιτητές: " + currentTotalUsers + "\n\n"
+                + "📚 Συνολικά Μαθήματα: " + currentTotalCourses + "\n\n"
+                + "🔥 Ενεργοί Χρήστες τώρα: 2\n\n"
+                + "💡 Περισσότερα insights θα προστεθούν σύντομα!";
+
+        // Φτιάχνουμε το παράθυρο (Native Android Dialog)
+        new AlertDialog.Builder(getContext())
+                .setTitle("Γενικά Στατιστικά")
+                .setMessage(statsMessage)
+                .setPositiveButton("ΟΚ", (dialog, which) -> dialog.dismiss()) // Κουμπί κλεισίματος
+                .show();
     }
 }

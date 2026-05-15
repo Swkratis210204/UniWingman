@@ -8,24 +8,26 @@ import java.util.List;
 
 public class AdminViewModel extends ViewModel {
 
-    // Κρατάει τον συνολικό αριθμό
     private final MutableLiveData<Integer> totalUsers = new MutableLiveData<>();
-    // ΝΕΟ: Κρατάει τη λίστα με τους πρόσφατους χρήστες
+    private final MutableLiveData<Integer> totalCourses = new MutableLiveData<>(); // ΝΕΟ: Για τον αριθμό μαθημάτων
     private final MutableLiveData<List<AdminUserItem>> recentUsers = new MutableLiveData<>();
-    // Κρατάει τα μηνύματα λάθους
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-
     private final SupabaseAdmin supabaseAdmin;
 
     public AdminViewModel() {
         supabaseAdmin = new SupabaseAdmin();
     }
 
+    // --- GETTERS ΓΙΑ ΤΟ UI ---
+
     public LiveData<Integer> getTotalUsers() {
         return totalUsers;
     }
 
-    // ΝΕΟ: Επιστρέφει τη λίστα στο Fragment
+    public LiveData<Integer> getTotalCourses() {
+        return totalCourses;
+    }
+
     public LiveData<List<AdminUserItem>> getRecentUsers() {
         return recentUsers;
     }
@@ -34,11 +36,13 @@ public class AdminViewModel extends ViewModel {
         return errorMessage;
     }
 
+    // --- ΜΕΘΟΔΟΙ ΔΙΑΧΕΙΡΙΣΗΣ ΔΕΔΟΜΕΝΩΝ ---
+
     /**
-     * Φορτώνει ΟΛΑ τα στατιστικά (αριθμούς και λίστες)
+     * Φορτώνει ΟΛΑ τα στατιστικά (αριθμούς και λίστες χρηστών) από τη βάση δεδομένων
      */
     public void loadStatistics() {
-        // 1. Φέρνει το νούμερο (το Mock που έχουμε αφήσει)
+        // 1. Φέρνει τον πραγματικό συνολικό αριθμό χρηστών
         supabaseAdmin.getTotalUserCount(new SupabaseAdmin.StatsCallback() {
             @Override
             public void onSuccess(int count) {
@@ -47,20 +51,51 @@ public class AdminViewModel extends ViewModel {
 
             @Override
             public void onError(String error) {
-                errorMessage.postValue(error);
+                errorMessage.postValue("Σφάλμα καταμέτρησης χρηστών: " + error);
             }
         });
 
-        // 2. ΝΕΟ: Φέρνει την πραγματική λίστα χρηστών
+        // 2. ΝΕΟ: Φέρνει τον συνολικό αριθμό των μαθημάτων
+        supabaseAdmin.getTotalCoursesCount(new SupabaseAdmin.StatsCallback() {
+            @Override
+            public void onSuccess(int count) {
+                totalCourses.postValue(count);
+            }
+
+            @Override
+            public void onError(String error) {
+                errorMessage.postValue("Σφάλμα καταμέτρησης μαθημάτων: " + error);
+            }
+        });
+
+        // 3. Φέρνει τη λίστα με τους 3 πιο πρόσφατους χρήστες
         supabaseAdmin.getRecentUsers(new SupabaseAdmin.UserListCallback() {
             @Override
             public void onSuccess(List<AdminUserItem> users) {
-                recentUsers.postValue(users); // Στέλνει τη λίστα στο UI
+                recentUsers.postValue(users);
             }
 
             @Override
             public void onError(String error) {
                 errorMessage.postValue("Σφάλμα φόρτωσης χρηστών: " + error);
+            }
+        });
+    }
+
+    /**
+     * Αναζητά χρήστες στη βάση δεδομένων με βάση το username
+     * και ενημερώνει τη λίστα της οθόνης (recentUsers)
+     */
+    public void searchUser(String query) {
+        supabaseAdmin.searchUsers(query, new SupabaseAdmin.UserListCallback() {
+            @Override
+            public void onSuccess(List<AdminUserItem> users) {
+                recentUsers.postValue(users);
+            }
+
+            @Override
+            public void onError(String error) {
+                errorMessage.postValue("Σφάλμα αναζήτησης: " + error);
             }
         });
     }
